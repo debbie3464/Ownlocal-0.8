@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OwnLocal — Backend Overview</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink:       #ff8fa3;
+  --pink-dark:  #c2185b;
+  --pink-soft:  #fff5f7;
+  --pink-pale:  #ffe3e8;
+  --berry:      #3a1a28;
+  --berry-mid:  #7b4f47;
+  --ink:        #1e1012;
+  --surface:    #ffffff;
+  --surface-2:  #faf7f8;
+  --border:     #f0e0e5;
+  --green:      #22c55e;
+  --blue:       #3b82f6;
+  --amber:      #f59e0b;
+  --purple:     #8b5cf6;
+  --mono:       'JetBrains Mono', monospace;
+  --sans:       'DM Sans', sans-serif;
+  --display:    'Syne', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: var(--sans);
+  background: var(--ink);
+  color: #e8d5da;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ── */
+.page-wrap { display: flex; min-height: 100vh; }
+
+/* ── SIDEBAR NAV ── */
+.sidenav {
+  width: 240px; flex-shrink: 0;
+  background: #120a0e;
+  border-right: 1px solid #2a1520;
+  position: sticky; top: 0; height: 100vh;
+  overflow-y: auto; padding: 28px 0 40px;
+  display: flex; flex-direction: column;
+}
+.sidenav-logo {
+  font-family: var(--display);
+  font-size: 18px; font-weight: 800;
+  color: white; padding: 0 22px 24px;
+  border-bottom: 1px solid #2a1520;
+  margin-bottom: 20px;
+}
+.sidenav-logo span { color: var(--pink); }
+.sidenav-logo .sub { font-size: 10px; font-weight: 400; color: #666; letter-spacing: 0.05em; margin-top: 2px; }
+.nav-section-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #4a3038;
+  padding: 0 22px 8px; margin-top: 8px;
+}
+.nav-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 22px;
+  font-size: 13px; font-weight: 500; color: #7a5560;
+  text-decoration: none; cursor: pointer;
+  transition: all 0.2s; border-left: 3px solid transparent;
+  border: none; background: none; text-align: left; width: 100%;
+}
+.nav-link:hover, .nav-link.active {
+  color: var(--pink); background: rgba(255,143,163,0.06);
+  border-left-color: var(--pink);
+}
+.nav-link .icon { font-size: 14px; width: 18px; text-align: center; }
+
+/* ── MAIN CONTENT ── */
+.main { flex: 1; overflow-x: hidden; }
+
+/* ── SECTIONS ── */
+.doc-section {
+  padding: 60px 48px;
+  border-bottom: 1px solid #1a0d12;
+  max-width: 1000px;
+}
+.doc-section:last-child { border-bottom: none; }
+
+/* Hero section */
+.hero-section {
+  background: linear-gradient(135deg, #1e0a14 0%, #120a0e 50%, #1a0e18 100%);
+  padding: 80px 48px 60px;
+  border-bottom: 1px solid #2a1520;
+  position: relative; overflow: hidden;
+}
+.hero-section::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 80% 50%, rgba(255,143,163,0.06), transparent);
+  pointer-events: none;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(255,143,163,0.1); border: 1px solid rgba(255,143,163,0.25);
+  border-radius: 100px; padding: 5px 14px; margin-bottom: 20px;
+  font-size: 11px; font-weight: 600; color: var(--pink); letter-spacing: 0.04em;
+}
+.hero-title {
+  font-family: var(--display);
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 800; color: white; line-height: 1.1;
+  margin-bottom: 14px; letter-spacing: -0.02em;
+}
+.hero-title span { color: var(--pink); }
+.hero-desc {
+  font-size: 15px; color: #9a7080; max-width: 540px; line-height: 1.65;
+  margin-bottom: 32px;
+}
+.hero-stack {
+  display: flex; flex-wrap: wrap; gap: 10px;
+}
+.stack-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #1e0e16; border: 1px solid #3a1e28;
+  border-radius: 8px; padding: 7px 14px;
+  font-size: 12px; font-weight: 600; color: #c8a0b0;
+  font-family: var(--mono);
+}
+.stack-pill .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+}
+
+/* ── SECTION HEADER ── */
+.section-number {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  color: var(--pink); letter-spacing: 0.08em; margin-bottom: 6px;
+}
+.section-title {
+  font-family: var(--display);
+  font-size: clamp(20px, 3vw, 26px);
+  font-weight: 800; color: white; margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+.section-desc {
+  font-size: 13px; color: #7a5560; margin-bottom: 28px; line-height: 1.6;
+}
+
+/* ── CARDS ── */
+.card {
+  background: #160b10;
+  border: 1px solid #2a1520;
+  border-radius: 16px; padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-family: var(--display);
+  font-size: 14px; font-weight: 700; color: white;
+  margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+}
+
+/* ── TECH STACK GRID ── */
+.tech-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+.tech-card {
+  background: #160b10; border: 1px solid #2a1520;
+  border-radius: 14px; padding: 18px 20px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.tech-card:hover { border-color: rgba(255,143,163,0.3); transform: translateY(-2px); }
+.tech-icon { font-size: 28px; margin-bottom: 10px; }
+.tech-name { font-family: var(--display); font-size: 14px; font-weight: 700; color: white; margin-bottom: 4px; }
+.tech-role { font-size: 11px; color: #7a5560; line-height: 1.4; }
+.tech-version { font-family: var(--mono); font-size: 10px; color: #4a3038; margin-top: 8px; }
+
+/* ── API TABLE ── */
+.api-table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid #2a1520; }
+.api-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 12px; min-width: 700px;
+}
+.api-table thead { background: #1e0a14; }
+.api-table th {
+  padding: 12px 16px; text-align: left;
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: #4a3038; white-space: nowrap;
+}
+.api-table td { padding: 13px 16px; border-top: 1px solid #1e0a14; color: #c8a0b0; vertical-align: top; }
+.api-table tr:hover td { background: #1a0812; }
+.method {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  padding: 3px 9px; border-radius: 6px; white-space: nowrap;
+  display: inline-block;
+}
+.method.GET    { background: rgba(34,197,94,0.12);  color: var(--green); }
+.method.POST   { background: rgba(59,130,246,0.12); color: var(--blue); }
+.method.PUT    { background: rgba(245,158,11,0.12); color: var(--amber); }
+.method.DELETE { background: rgba(239,68,68,0.12);  color: #ef4444; }
+.route-code {
+  font-family: var(--mono); font-size: 12px; color: white; font-weight: 500;
+}
+.param-code {
+  font-family: var(--mono); font-size: 11px;
+  background: #1e0a14; padding: 2px 7px;
+  border-radius: 5px; color: #d0a0b0;
+  display: inline-block; margin: 2px 2px 2px 0;
+}
+
+/* ── DB TABLE ── */
+.db-section { margin-bottom: 28px; }
+.db-table-name {
+  font-family: var(--mono); font-size: 13px; font-weight: 700;
+  color: var(--pink); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.db-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid #2a1520; }
+.db-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.db-table th {
+  padding: 10px 14px; text-align: left;
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: #4a3038; background: #1a0812;
+}
+.db-table td { padding: 11px 14px; border-top: 1px solid #1e0a14; color: #c8a0b0; }
+.db-table tr:hover td { background: #1a0812; }
+.col-pk { font-family: var(--mono); font-size: 10px; color: var(--amber); }
+.col-type { font-family: var(--mono); font-size: 10px; color: #7a5560; }
+.col-name { font-family: var(--mono); font-size: 12px; color: white; font-weight: 600; }
+
+/* ── DATA FLOW ── */
+.flow-diagram {
+  display: flex; align-items: flex-start; gap: 0;
+  overflow-x: auto; padding-bottom: 8px;
+}
+.flow-step {
+  flex-shrink: 0; width: 160px;
+  background: #160b10; border: 1px solid #2a1520;
+  border-radius: 14px; padding: 16px 14px;
+  text-align: center;
+}
+.flow-arrow {
+  flex-shrink: 0; display: flex; align-items: center;
+  padding: 0 8px; color: #3a1e28; font-size: 18px;
+  align-self: center;
+}
+.flow-icon { font-size: 26px; margin-bottom: 8px; }
+.flow-label { font-family: var(--display); font-size: 11px; font-weight: 700; color: white; margin-bottom: 4px; }
+.flow-desc { font-size: 10px; color: #5a3040; line-height: 1.4; }
+
+/* ── CODE BLOCK ── */
+.code-block {
+  background: #0e0609; border: 1px solid #2a1520;
+  border-radius: 12px; padding: 18px 22px;
+  font-family: var(--mono); font-size: 12px;
+  line-height: 1.7; overflow-x: auto;
+  margin-bottom: 14px;
+}
+.code-block .comment { color: #5a3040; }
+.code-block .cmd { color: #e8d5da; }
+.code-block .flag { color: var(--blue); }
+.code-block .value { color: var(--pink); }
+.code-block .keyword { color: var(--amber); }
+.line { display: block; }
+
+/* ── QA SECTION ── */
+.qa-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 14px;
+}
+.qa-card {
+  background: #160b10; border: 1px solid #2a1520;
+  border-radius: 14px; padding: 18px 20px;
+  transition: border-color 0.2s;
+}
+.qa-card:hover { border-color: rgba(255,143,163,0.25); }
+.qa-num {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  color: var(--pink); margin-bottom: 8px;
+}
+.qa-q {
+  font-family: var(--display); font-size: 13px; font-weight: 700;
+  color: white; margin-bottom: 8px; line-height: 1.4;
+}
+.qa-a { font-size: 12px; color: #9a7080; line-height: 1.6; }
+.qa-a code {
+  font-family: var(--mono); font-size: 11px;
+  background: #1e0a14; padding: 1px 6px; border-radius: 4px;
+  color: #d0a0b0;
+}
+
+/* ── BADGES ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 700; padding: 3px 9px;
+  border-radius: 100px; white-space: nowrap;
+}
+.badge-green  { background: rgba(34,197,94,0.12);  color: var(--green);  border: 1px solid rgba(34,197,94,0.2); }
+.badge-blue   { background: rgba(59,130,246,0.12); color: var(--blue);   border: 1px solid rgba(59,130,246,0.2); }
+.badge-amber  { background: rgba(245,158,11,0.12); color: var(--amber);  border: 1px solid rgba(245,158,11,0.2); }
+.badge-pink   { background: rgba(255,143,163,0.12);color: var(--pink);   border: 1px solid rgba(255,143,163,0.2); }
+.badge-purple { background: rgba(139,92,246,0.12); color: var(--purple); border: 1px solid rgba(139,92,246,0.2); }
+
+/* ── INLINE LIST ── */
+ul.styled { list-style: none; }
+ul.styled li {
+  padding: 7px 0; border-bottom: 1px solid #1e0a14;
+  font-size: 13px; color: #c8a0b0; display: flex; align-items: flex-start; gap: 8px;
+}
+ul.styled li::before { content: '◆'; color: var(--pink); font-size: 8px; margin-top: 4px; flex-shrink: 0; }
+ul.styled li:last-child { border-bottom: none; }
+
+/* ── RESPONSIVE SIDEBAR ── */
+@media (max-width: 900px) {
+  .sidenav { display: none; }
+  .doc-section { padding: 40px 24px; }
+  .hero-section { padding: 50px 24px 40px; }
+  .tech-grid { grid-template-columns: repeat(2, 1fr); }
+  .qa-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+<!-- ── SIDEBAR ── -->
+<nav class="sidenav">
+  <div class="sidenav-logo">Own<span>Local</span><div class="sub">BACKEND DOCS · v3.0.0</div></div>
+
+  <div class="nav-section-label">Overview</div>
+  <button class="nav-link" onclick="scrollTo('sec-overview')"><span class="icon">🏗️</span>Project Overview</button>
+  <button class="nav-link" onclick="scrollTo('sec-stack')"><span class="icon">🛠️</span>Tech Stack</button>
+
+  <div class="nav-section-label">API</div>
+  <button class="nav-link" onclick="scrollTo('sec-endpoints')"><span class="icon">⚡</span>Endpoints</button>
+  <button class="nav-link" onclick="scrollTo('sec-logic')"><span class="icon">🧠</span>Core Logic</button>
+
+  <div class="nav-section-label">Data</div>
+  <button class="nav-link" onclick="scrollTo('sec-db')"><span class="icon">🗄️</span>Database</button>
+  <button class="nav-link" onclick="scrollTo('sec-flow')"><span class="icon">🔄</span>Data Flow</button>
+
+  <div class="nav-section-label">Setup</div>
+  <button class="nav-link" onclick="scrollTo('sec-run')"><span class="icon">🚀</span>How to Run</button>
+  <button class="nav-link" onclick="scrollTo('sec-debug')"><span class="icon">🐛</span>Testing & Debug</button>
+
+  <div class="nav-section-label">Hackathon</div>
+  <button class="nav-link" onclick="scrollTo('sec-qa')"><span class="icon">🏆</span>25 Q&amp;A</button>
+</nav>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+<!-- HERO -->
+<div class="hero-section">
+  <div class="hero-badge">🏆 OwnLocal · Hackathon Edition 2026</div>
+  <h1 class="hero-title">Backend<br><span>Architecture Docs</span></h1>
+  <p class="hero-desc">
+    A FastAPI + SQLite backend powering hyper-local equity distribution for Kolkata's neighbourhood shops. Built for speed, simplicity, and demo-day confidence.
+  </p>
+  <div class="hero-stack">
+    <div class="stack-pill"><div class="dot" style="background:#3b82f6;"></div>FastAPI 0.110+</div>
+    <div class="stack-pill"><div class="dot" style="background:#22c55e;"></div>Python 3.11+</div>
+    <div class="stack-pill"><div class="dot" style="background:#f59e0b;"></div>SQLite 3</div>
+    <div class="stack-pill"><div class="dot" style="background:#8b5cf6;"></div>Pandas / openpyxl</div>
+    <div class="stack-pill"><div class="dot" style="background:#ff8fa3;"></div>Pydantic v2</div>
+    <div class="stack-pill"><div class="dot" style="background:#e2431d;"></div>Uvicorn ASGI</div>
+  </div>
+</div>
+
+<!-- 1. OVERVIEW -->
+<div class="doc-section" id="sec-overview">
+  <div class="section-number">01 / OVERVIEW</div>
+  <h2 class="section-title">Project Overview</h2>
+  <p class="section-desc">OwnLocal is a fintech platform that converts everyday local shopping into fractional equity ownership in neighbourhood shops.</p>
+
+  <div class="card">
+    <div class="card-title">🎯 What It Does</div>
+    <ul class="styled">
+      <li>Customers shop at local Kolkata stores and earn <strong>equity tokens</strong> automatically (₹1 spent = 0.2 tokens).</li>
+      <li>Tokens accumulate into Bronze → Silver → Gold <strong>stakeholder tiers</strong>, unlocking perks and eventual revenue-share equity.</li>
+      <li>Merchants register via GSTIN verification, get a <strong>Merchant Suite dashboard</strong> showing stakeholders, reviews, and equity distribution.</li>
+      <li>The backend stores shop data (seeded from an Excel sheet), manages waitlist sign-ups, and handles merchant auth.</li>
+      <li>An offline verifier lets merchants manually push equity tokens to customer wallets via phone number.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📍 Target Market</div>
+    <p style="font-size:13px;color:#9a7080;line-height:1.6;">Kolkata's 7 major commercial zones: Academic/Student Hub, South Kolkata Shopping Hub, Central Transit Hub, Historic/Gateway Hub, North Kolkata Residential Hub, IT & Tech Hub (Salt Lake Sector V), and Premium/Dining Hub (Park Street). Each has a distinct equity percentage configuration tuned to footfall and average spend.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔑 Key Design Decisions</div>
+    <ul class="styled">
+      <li><strong>No user database</strong>: User state (equity, ledger, tokens) lives entirely in <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">localStorage</code>. This keeps the backend simple and avoids auth overhead.</li>
+      <li><strong>SQLite over PostgreSQL</strong>: Zero-config, single-file DB. Perfect for hackathon demos and easy to reset.</li>
+      <li><strong>Excel as seed source</strong>: Real Kolkata shop data is stored in <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">Kolkata Hubs Excel Sheet Layout.xlsx</code> and imported on startup.</li>
+      <li><strong>CORS wildcard</strong>: <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">allow_origins=["*"]</code> lets the static HTML frontend connect from any origin without configuration.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 2. TECH STACK -->
+<div class="doc-section" id="sec-stack">
+  <div class="section-number">02 / TECH STACK</div>
+  <h2 class="section-title">Tech Stack</h2>
+  <p class="section-desc">Minimal, battle-tested libraries chosen for zero-configuration hackathon deployment.</p>
+
+  <div class="tech-grid">
+    <div class="tech-card">
+      <div class="tech-icon">⚡</div>
+      <div class="tech-name">FastAPI</div>
+      <div class="tech-role">Web framework. Auto-generates OpenAPI docs, async-ready, type-safe via Pydantic.</div>
+      <div class="tech-version">pip install fastapi</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon">🦄</div>
+      <div class="tech-name">Uvicorn</div>
+      <div class="tech-role">ASGI server that runs the FastAPI app. Supports hot-reload during development.</div>
+      <div class="tech-version">pip install uvicorn[standard]</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon">🗄️</div>
+      <div class="tech-name">SQLite 3</div>
+      <div class="tech-role">Built into Python. Zero-config file-based database. Stores shops, merchants, waitlist.</div>
+      <div class="tech-version">stdlib — no install needed</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon">🐼</div>
+      <div class="tech-name">Pandas</div>
+      <div class="tech-role">Reads the Excel file on startup to seed the shops table. Used only at boot time.</div>
+      <div class="tech-version">pip install pandas openpyxl</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon">✅</div>
+      <div class="tech-name">Pydantic v2</div>
+      <div class="tech-role">Request body validation and serialization. Bundled with FastAPI automatically.</div>
+      <div class="tech-version">installed with fastapi</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon">🌐</div>
+      <div class="tech-name">CORS Middleware</div>
+      <div class="tech-role">Allows the static HTML frontend to call the API from any origin (browser security bypass).</div>
+      <div class="tech-version">included in fastapi</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon">🗺️</div>
+      <div class="tech-name">OpenStreetMap</div>
+      <div class="tech-role">Embedded iframe map — no API key needed. Bounding boxes set per pincode area.</div>
+      <div class="tech-version">free, no account required</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-icon">🎨</div>
+      <div class="tech-name">Tailwind CDN</div>
+      <div class="tech-role">Frontend utility CSS loaded via CDN. No build step needed for the HTML file.</div>
+      <div class="tech-version">cdn.tailwindcss.com</div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. ENDPOINTS -->
+<div class="doc-section" id="sec-endpoints">
+  <div class="section-number">03 / API ENDPOINTS</div>
+  <h2 class="section-title">API Endpoints</h2>
+  <p class="section-desc">All endpoints served from <code style="font-family:monospace;background:#1e0a14;padding:2px 7px;border-radius:5px;color:#d0a0b0;">http://localhost:5000</code> (dev) or same-origin (prod). Interactive docs at <code style="font-family:monospace;background:#1e0a14;padding:2px 7px;border-radius:5px;color:#d0a0b0;">/docs</code>.</p>
+
+  <div class="api-table-wrap">
+    <table class="api-table">
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Route</th>
+          <th>Purpose</th>
+          <th>Request Body / Params</th>
+          <th>Response</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="method GET">GET</span></td>
+          <td><span class="route-code">/</span></td>
+          <td>Health check</td>
+          <td><span class="param-code">—</span></td>
+          <td><span class="param-code">message</span> <span class="param-code">docs</span></td>
+        </tr>
+        <tr>
+          <td><span class="method GET">GET</span></td>
+          <td><span class="route-code">/shops</span></td>
+          <td>Fetch all shops for a pincode</td>
+          <td>Query: <span class="param-code">?pincode=700019</span></td>
+          <td><span class="param-code">pincode</span> <span class="param-code">shops[]</span> — array of shop objects with id, name, category, rating, footfall, avgSpending, emoji, closingTime, status, baseEquityPct</td>
+        </tr>
+        <tr>
+          <td><span class="method POST">POST</span></td>
+          <td><span class="route-code">/transaction</span></td>
+          <td>Process a purchase & calculate equity</td>
+          <td><span class="param-code">user_id</span> <span class="param-code">shop_id</span> <span class="param-code">total</span></td>
+          <td><span class="param-code">tokensEarned</span> <span class="param-code">equityEarned</span> <span class="param-code">message</span> <span class="param-code">total_spend</span></td>
+        </tr>
+        <tr>
+          <td><span class="method POST">POST</span></td>
+          <td><span class="route-code">/waitlist</span></td>
+          <td>Add email to early-access waitlist</td>
+          <td><span class="param-code">email</span> <span class="param-code">pincode</span></td>
+          <td><span class="param-code">success: true</span> <span class="param-code">message</span> (deduplicated by email)</td>
+        </tr>
+        <tr>
+          <td><span class="method GET">GET</span></td>
+          <td><span class="route-code">/waitlist</span></td>
+          <td>Admin: view all waitlist entries</td>
+          <td><span class="param-code">—</span></td>
+          <td><span class="param-code">count</span> <span class="param-code">waitlist[]</span></td>
+        </tr>
+        <tr>
+          <td><span class="method POST">POST</span></td>
+          <td><span class="route-code">/merchants</span></td>
+          <td>Register a new merchant</td>
+          <td><span class="param-code">shop_name*</span> <span class="param-code">password*</span> <span class="param-code">category</span> <span class="param-code">pincode</span> <span class="param-code">gstin</span> <span class="param-code">email</span> <span class="param-code">footfall</span></td>
+          <td><span class="param-code">success</span> <span class="param-code">message</span> — 400 if shop name taken</td>
+        </tr>
+        <tr>
+          <td><span class="method POST">POST</span></td>
+          <td><span class="route-code">/signup</span></td>
+          <td>Alias for /merchants (merchant registration)</td>
+          <td>Same as <span class="param-code">/merchants</span></td>
+          <td>Same as <span class="param-code">/merchants</span></td>
+        </tr>
+        <tr>
+          <td><span class="method POST">POST</span></td>
+          <td><span class="route-code">/merchant-login</span></td>
+          <td>Authenticate a merchant</td>
+          <td><span class="param-code">shop_name*</span> <span class="param-code">password*</span></td>
+          <td><span class="param-code">success</span> <span class="param-code">shop_name</span> — 401 on bad credentials</td>
+        </tr>
+        <tr>
+          <td><span class="method POST">POST</span></td>
+          <td><span class="route-code">/login</span></td>
+          <td>Alias for /merchant-login</td>
+          <td>Same as <span class="param-code">/merchant-login</span></td>
+          <td>Same as <span class="param-code">/merchant-login</span></td>
+        </tr>
+        <tr>
+          <td><span class="method GET">GET</span></td>
+          <td><span class="route-code">/merchant-profile</span></td>
+          <td>Get merchant dashboard data</td>
+          <td>Query: <span class="param-code">?shop_name=Rosé+Bakery</span></td>
+          <td>id, shop_name, owner_name, category, pincode, email, footfall, joined_at — 404 if not found</td>
+        </tr>
+        <tr>
+          <td><span class="method GET">GET</span></td>
+          <td><span class="route-code">/merchants</span></td>
+          <td>Admin: list all registered merchants</td>
+          <td><span class="param-code">—</span></td>
+          <td><span class="param-code">count</span> <span class="param-code">merchants[]</span></td>
+        </tr>
+        <tr>
+          <td><span class="method GET">GET</span></td>
+          <td><span class="route-code">/portfolio</span></td>
+          <td>Stub endpoint — returns zero values</td>
+          <td>Query: <span class="param-code">?user_id=</span> (optional)</td>
+          <td><span class="param-code">total_spend: 0</span> <span class="param-code">total_equity: 0</span> <span class="param-code">total_tokens: 0</span></td>
+        </tr>
+        <tr>
+          <td><span class="method GET">GET</span></td>
+          <td><span class="route-code">/docs</span></td>
+          <td>Auto-generated Swagger UI (FastAPI)</td>
+          <td><span class="param-code">—</span></td>
+          <td>Interactive HTML API explorer</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 4. CORE LOGIC -->
+<div class="doc-section" id="sec-logic">
+  <div class="section-number">04 / CORE LOGIC</div>
+  <h2 class="section-title">Core Logic</h2>
+  <p class="section-desc">Key business rules and processing algorithms in the backend.</p>
+
+  <div class="card">
+    <div class="card-title">🧮 Equity Calculation</div>
+    <p style="font-size:12px;color:#9a7080;margin-bottom:12px;">When <code>/transaction</code> is called with a spend amount:</p>
+    <div class="code-block">
+<span class="line"><span class="comment"># Tokens earned: every ₹10 spent = 1 token</span></span>
+<span class="line"><span class="keyword">tokens_earned</span> = round(total / 10)</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Equity earned: 2% of total spend (in ₹)</span></span>
+<span class="line"><span class="keyword">equity_earned</span> = round(total * 0.02, 2)</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Example: ₹500 purchase → 50 tokens, ₹10.00 equity</span></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔐 Merchant Authentication</div>
+    <ul class="styled">
+      <li><strong>Registration</strong>: Shop name must be unique (checked against <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">merchants</code> table). GSTIN is stored uppercase. No hashing in this version — plain-text password for hackathon speed.</li>
+      <li><strong>Login</strong>: Direct SQL match on <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">shop_name</code> + <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">password</code>. Returns 401 on mismatch. Session maintained in browser <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">localStorage</code>.</li>
+      <li><strong>No JWT/sessions on server</strong>: The backend is stateless — any state is owned by the client. This is an intentional trade-off for hackathon simplicity.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🌱 Startup Seeding</div>
+    <ul class="styled">
+      <li>On startup, <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">create_tables()</code> creates all 3 tables with <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">IF NOT EXISTS</code> — safe to call repeatedly.</li>
+      <li><code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">seed_shops()</code> checks if <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">shops</code> table is empty. If so, reads <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">Kolkata Hubs Excel Sheet Layout.xlsx</code>, maps each shop to a hub config, and inserts rows.</li>
+      <li>If Excel file is missing, seeding is silently skipped (shops table stays empty; frontend falls back to its own LOCATION_DATABASE).</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🏙️ Hub Configuration Map</div>
+    <p style="font-size:12px;color:#9a7080;margin-bottom:12px;">7 Kolkata hub types → shop configuration presets:</p>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:600px;">
+        <thead><tr style="background:#1e0a14;">
+          <th style="padding:8px 12px;text-align:left;color:#4a3038;font-family:monospace;font-size:10px;">Hub Type</th>
+          <th style="padding:8px 12px;text-align:left;color:#4a3038;font-family:monospace;font-size:10px;">Category</th>
+          <th style="padding:8px 12px;color:#4a3038;font-family:monospace;font-size:10px;">Avg Spend</th>
+          <th style="padding:8px 12px;color:#4a3038;font-family:monospace;font-size:10px;">Equity %</th>
+        </tr></thead>
+        <tbody>
+          <tr style="border-top:1px solid #1e0a14;"><td style="padding:9px 12px;color:#c8a0b0;">Academic / Student Hub</td><td style="padding:9px 12px;color:#9a7080;">Bookstore 📚</td><td style="padding:9px 12px;color:#9a7080;text-align:center;">₹250</td><td style="padding:9px 12px;color:var(--pink);text-align:center;font-family:monospace;">2.0%</td></tr>
+          <tr style="border-top:1px solid #1e0a14;"><td style="padding:9px 12px;color:#c8a0b0;">South Kolkata Shopping Hub</td><td style="padding:9px 12px;color:#9a7080;">Fashion 👗</td><td style="padding:9px 12px;color:#9a7080;text-align:center;">₹850</td><td style="padding:9px 12px;color:var(--pink);text-align:center;font-family:monospace;">2.5%</td></tr>
+          <tr style="border-top:1px solid #1e0a14;"><td style="padding:9px 12px;color:#c8a0b0;">Central Transit Hub</td><td style="padding:9px 12px;color:#9a7080;">Restaurant 🍛</td><td style="padding:9px 12px;color:#9a7080;text-align:center;">₹180</td><td style="padding:9px 12px;color:var(--pink);text-align:center;font-family:monospace;">1.8%</td></tr>
+          <tr style="border-top:1px solid #1e0a14;"><td style="padding:9px 12px;color:#c8a0b0;">Historic / Gateway Hub</td><td style="padding:9px 12px;color:#9a7080;">Fashion 🪡</td><td style="padding:9px 12px;color:#9a7080;text-align:center;">₹700</td><td style="padding:9px 12px;color:var(--pink);text-align:center;font-family:monospace;">2.2%</td></tr>
+          <tr style="border-top:1px solid #1e0a14;"><td style="padding:9px 12px;color:#c8a0b0;">North Kolkata Residential Hub</td><td style="padding:9px 12px;color:#9a7080;">Grocery 🛒</td><td style="padding:9px 12px;color:#9a7080;text-align:center;">₹300</td><td style="padding:9px 12px;color:var(--pink);text-align:center;font-family:monospace;">1.5%</td></tr>
+          <tr style="border-top:1px solid #1e0a14;"><td style="padding:9px 12px;color:#c8a0b0;">IT &amp; Tech Hub (Sector V)</td><td style="padding:9px 12px;color:#9a7080;">Electronics 💻</td><td style="padding:9px 12px;color:#9a7080;text-align:center;">₹1,200</td><td style="padding:9px 12px;color:var(--pink);text-align:center;font-family:monospace;">3.5%</td></tr>
+          <tr style="border-top:1px solid #1e0a14;"><td style="padding:9px 12px;color:#c8a0b0;">Premium / Dining Hub (Park St)</td><td style="padding:9px 12px;color:#9a7080;">Luxury Dining 🍽️</td><td style="padding:9px 12px;color:#9a7080;text-align:center;">₹2,000</td><td style="padding:9px 12px;color:var(--pink);text-align:center;font-family:monospace;">7.0%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🗄️ Database Helper Pattern</div>
+    <div class="code-block">
+<span class="line"><span class="comment"># Every endpoint opens + closes its own connection.</span></span>
+<span class="line"><span class="comment"># conn.row_factory = sqlite3.Row enables dict-style access: row["name"]</span></span>
+<span class="line"><span class="keyword">def</span> get_db():</span>
+<span class="line">    conn = sqlite3.connect(DB_PATH)</span>
+<span class="line">    conn.row_factory = sqlite3.Row</span>
+<span class="line">    <span class="keyword">return</span> conn</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Usage pattern (always commit + close):</span></span>
+<span class="line">conn = get_db()</span>
+<span class="line">conn.execute(<span class="value">"INSERT INTO ... VALUES (?)"</span>, (value,))</span>
+<span class="line">conn.commit()</span>
+<span class="line">conn.close()</span>
+    </div>
+  </div>
+</div>
+
+<!-- 5. DATABASE -->
+<div class="doc-section" id="sec-db">
+  <div class="section-number">05 / DATABASE STRUCTURE</div>
+  <h2 class="section-title">Database Structure</h2>
+  <p class="section-desc">SQLite file: <code style="font-family:monospace;background:#1e0a14;padding:2px 7px;border-radius:5px;color:#d0a0b0;">ownlocal.db</code> — auto-created in the same directory as <code style="font-family:monospace;background:#1e0a14;padding:2px 7px;border-radius:5px;color:#d0a0b0;">main.py</code>. 3 tables.</p>
+
+  <!-- shops -->
+  <div class="db-section">
+    <div class="db-table-name">📦 shops <span style="font-size:11px;color:#5a3040;font-weight:400;">— neighbourhood shop registry (seeded from Excel)</span></div>
+    <div class="db-table-wrap">
+      <table class="db-table">
+        <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><span class="col-pk">PK</span> <span class="col-name">id</span></td><td><span class="col-type">INTEGER</span></td><td>AUTOINCREMENT</td><td>Unique shop identifier</td></tr>
+          <tr><td><span class="col-name">name</span></td><td><span class="col-type">TEXT NOT NULL</span></td><td>—</td><td>Shop display name (e.g. "Flurys")</td></tr>
+          <tr><td><span class="col-name">pincode</span></td><td><span class="col-type">TEXT NOT NULL</span></td><td>—</td><td>6-digit Kolkata pincode for geographic filtering</td></tr>
+          <tr><td><span class="col-name">category</span></td><td><span class="col-type">TEXT</span></td><td>'General'</td><td>Shop type (Café, Fashion, Grocery, etc.)</td></tr>
+          <tr><td><span class="col-name">rating</span></td><td><span class="col-type">REAL</span></td><td>4.0</td><td>Star rating (0–5) used by AI insight engine</td></tr>
+          <tr><td><span class="col-name">footfall</span></td><td><span class="col-type">INTEGER</span></td><td>100</td><td>Monthly customer visits (used for scoring)</td></tr>
+          <tr><td><span class="col-name">avg_spending</span></td><td><span class="col-type">REAL</span></td><td>200</td><td>Average spend per visit in ₹</td></tr>
+          <tr><td><span class="col-name">emoji</span></td><td><span class="col-type">TEXT</span></td><td>'🏪'</td><td>Category emoji for frontend display</td></tr>
+          <tr><td><span class="col-name">closing_time</span></td><td><span class="col-type">TEXT</span></td><td>'9pm'</td><td>Daily closing time shown in shop cards</td></tr>
+          <tr><td><span class="col-name">status</span></td><td><span class="col-type">TEXT</span></td><td>'Open'</td><td>Real-time status: 'Open' or 'Closed'</td></tr>
+          <tr><td><span class="col-name">base_equity_pct</span></td><td><span class="col-type">REAL</span></td><td>1.0</td><td>Starting equity % — varies by hub type (1.0–9.8%)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- merchants -->
+  <div class="db-section">
+    <div class="db-table-name">🏪 merchants <span style="font-size:11px;color:#5a3040;font-weight:400;">— registered merchant accounts</span></div>
+    <div class="db-table-wrap">
+      <table class="db-table">
+        <thead><tr><th>Column</th><th>Type</th><th>Default</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><span class="col-pk">PK</span> <span class="col-name">id</span></td><td><span class="col-type">INTEGER</span></td><td>AUTOINCREMENT</td><td>Unique merchant ID</td></tr>
+          <tr><td><span class="col-name">shop_name</span></td><td><span class="col-type">TEXT NOT NULL UNIQUE</span></td><td>—</td><td>Acts as username; uniqueness enforced at DB level</td></tr>
+          <tr><td><span class="col-name">owner_name</span></td><td><span class="col-type">TEXT</span></td><td>''</td><td>Merchant's personal name (optional)</td></tr>
+          <tr><td><span class="col-name">password</span></td><td><span class="col-type">TEXT NOT NULL</span></td><td>—</td><td>Plain-text password (hackathon version)</td></tr>
+          <tr><td><span class="col-name">category</span></td><td><span class="col-type">TEXT</span></td><td>'Other'</td><td>Business type selected at registration</td></tr>
+          <tr><td><span class="col-name">pincode</span></td><td><span class="col-type">TEXT</span></td><td>''</td><td>Shop location pincode</td></tr>
+          <tr><td><span class="col-name">gstin</span></td><td><span class="col-type">TEXT</span></td><td>''</td><td>GST Identification Number — stored uppercase, 15 chars</td></tr>
+          <tr><td><span class="col-name">email</span></td><td><span class="col-type">TEXT</span></td><td>''</td><td>Merchant contact email</td></tr>
+          <tr><td><span class="col-name">footfall</span></td><td><span class="col-type">INTEGER</span></td><td>0</td><td>Self-reported monthly footfall at signup</td></tr>
+          <tr><td><span class="col-name">joined_at</span></td><td><span class="col-type">TEXT</span></td><td>datetime('now')</td><td>UTC timestamp of registration (SQLite default)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- waitlist -->
+  <div class="db-section">
+    <div class="db-table-name">📧 waitlist <span style="font-size:11px;color:#5a3040;font-weight:400;">— early-access sign-ups</span></div>
+    <div class="db-table-wrap">
+      <table class="db-table">
+        <thead><tr><th>Column</th><th>Type</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><span class="col-pk">PK</span> <span class="col-name">id</span></td><td><span class="col-type">INTEGER AUTOINCREMENT</span></td><td>Row identifier</td></tr>
+          <tr><td><span class="col-name">email</span></td><td><span class="col-type">TEXT NOT NULL UNIQUE</span></td><td>User's email — UNIQUE prevents duplicates; backend checks and returns friendly message</td></tr>
+          <tr><td><span class="col-name">pincode</span></td><td><span class="col-type">TEXT</span></td><td>User's pincode captured at sign-up for geographic demand analysis</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 6. DATA FLOW -->
+<div class="doc-section" id="sec-flow">
+  <div class="section-number">06 / DATA FLOW</div>
+  <h2 class="section-title">Data Flow</h2>
+  <p class="section-desc">How data moves from user action → frontend → backend → database → response.</p>
+
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-title">🛒 Purchase Flow (Customer)</div>
+    <div class="flow-diagram">
+      <div class="flow-step"><div class="flow-icon">👤</div><div class="flow-label">User</div><div class="flow-desc">Taps "Shop Online", adds items to cart, hits Checkout</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-icon">🖥️</div><div class="flow-label">Frontend JS</div><div class="flow-desc">Calculates total, calls POST /transaction with shop_id + total</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-icon">⚡</div><div class="flow-label">FastAPI</div><div class="flow-desc">Validates amount > 0, computes tokens + equity, returns result</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-icon">💾</div><div class="flow-label">localStorage</div><div class="flow-desc">Frontend saves updated spend, equity, tokens, activity ledger</div></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-title">🏪 Merchant Registration Flow</div>
+    <div class="flow-diagram">
+      <div class="flow-step"><div class="flow-icon">📋</div><div class="flow-label">Partner Form</div><div class="flow-desc">Merchant fills shop name, GSTIN, password, category, pincode</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-icon">🖥️</div><div class="flow-label">Frontend</div><div class="flow-desc">Validates fields, shows GSTIN spinner, calls POST /signup</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-icon">⚡</div><div class="flow-label">FastAPI</div><div class="flow-desc">Checks uniqueness, inserts into merchants table, returns success</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-icon">🗄️</div><div class="flow-label">SQLite DB</div><div class="flow-desc">Row persisted in merchants table with joined_at timestamp</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🌱 App Startup Flow</div>
+    <div class="flow-diagram">
+      <div class="flow-step"><div class="flow-icon">🚀</div><div class="flow-label">uvicorn start</div><div class="flow-desc">main:app --reload starts the ASGI server on port 8000</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-icon">🗄️</div><div class="flow-label">create_tables()</div><div class="flow-desc">Creates shops, merchants, waitlist tables if missing</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-icon">📊</div><div class="flow-label">seed_shops()</div><div class="flow-desc">Reads Excel → maps to hub configs → inserts shop rows</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="flow-icon">✅</div><div class="flow-label">Ready</div><div class="flow-desc">All endpoints live. Frontend can now connect at port 8000</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 7. HOW TO RUN -->
+<div class="doc-section" id="sec-run">
+  <div class="section-number">07 / HOW TO RUN</div>
+  <h2 class="section-title">How to Run the Backend</h2>
+  <p class="section-desc">Get OwnLocal running locally in under 3 minutes.</p>
+
+  <div class="card">
+    <div class="card-title">📋 Prerequisites</div>
+    <ul class="styled">
+      <li>Python 3.11 or higher</li>
+      <li><code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">main.py</code> and <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">Kolkata Hubs Excel Sheet Layout.xlsx</code> in the same folder</li>
+      <li><code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">index.html</code> can be opened directly in browser (no build step)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">⚡ Quick Start</div>
+    <div class="code-block">
+<span class="line"><span class="comment"># 1. Create & activate virtual environment (recommended)</span></span>
+<span class="line"><span class="cmd">python -m venv venv</span></span>
+<span class="line"><span class="cmd">source venv/bin/activate</span>  <span class="comment"># Windows: venv\Scripts\activate</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 2. Install dependencies</span></span>
+<span class="line"><span class="cmd">pip install fastapi uvicorn pandas openpyxl</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 3. Start the server (hot-reload for dev)</span></span>
+<span class="line"><span class="cmd">uvicorn main:app</span> <span class="flag">--reload</span> <span class="flag">--port</span> <span class="value">5000</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 4. Open the frontend</span></span>
+<span class="line"><span class="cmd">open index.html</span>  <span class="comment"># or double-click it in Finder/Explorer</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># API now live at: http://localhost:5000</span></span>
+<span class="line"><span class="comment"># Swagger docs at: http://localhost:5000/docs</span></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔧 Port Configuration</div>
+    <p style="font-size:13px;color:#9a7080;line-height:1.6;margin-bottom:10px;">The frontend auto-detects the backend URL:</p>
+    <div class="code-block">
+<span class="line"><span class="comment">// In index.html (line ~1521)</span></span>
+<span class="line"><span class="keyword">const</span> API_BASE = window.location.hostname === <span class="value">'localhost'</span></span>
+<span class="line">  ? <span class="value">'http://localhost:5000'</span>   <span class="comment">// local dev</span></span>
+<span class="line">  : <span class="value">''</span>;                        <span class="comment">// same-origin in production</span></span>
+    </div>
+    <p style="font-size:12px;color:#7a5560;margin-top:10px;">⚠️ If you use a different port, update this constant in <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">index.html</code>. The backend itself uses port 5000 (or whatever <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">--port</code> you pass to uvicorn). Default FastAPI port is 8000 — make sure they match.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🗃️ Reset Database</div>
+    <div class="code-block">
+<span class="line"><span class="comment"># Delete the SQLite file to start fresh</span></span>
+<span class="line"><span class="cmd">rm ownlocal.db</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Restart server — tables + shops re-created automatically</span></span>
+<span class="line"><span class="cmd">uvicorn main:app --reload --port 5000</span></span>
+    </div>
+  </div>
+</div>
+
+<!-- 8. TESTING & DEBUG -->
+<div class="doc-section" id="sec-debug">
+  <div class="section-number">08 / TESTING &amp; DEBUGGING</div>
+  <h2 class="section-title">Testing &amp; Debugging</h2>
+  <p class="section-desc">Tools and techniques for verifying the backend works correctly.</p>
+
+  <div class="card">
+    <div class="card-title">🔍 Using Swagger UI (/docs)</div>
+    <p style="font-size:13px;color:#9a7080;line-height:1.6;">Visit <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">http://localhost:5000/docs</code> for the auto-generated interactive API. You can test every endpoint with real inputs directly in the browser — no Postman needed. This is your primary demo tool for judges.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🧪 cURL / Terminal Tests</div>
+    <div class="code-block">
+<span class="line"><span class="comment"># Health check</span></span>
+<span class="line"><span class="cmd">curl http://localhost:5000/</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Fetch shops for Gariahat</span></span>
+<span class="line"><span class="cmd">curl "http://localhost:5000/shops?pincode=700019"</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Process a transaction</span></span>
+<span class="line"><span class="cmd">curl -X POST http://localhost:5000/transaction \</span></span>
+<span class="line"><span class="cmd">  -H "Content-Type: application/json" \</span></span>
+<span class="line"><span class="cmd">  -d '{"shop_id": 1, "total": 500}'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Register a merchant</span></span>
+<span class="line"><span class="cmd">curl -X POST http://localhost:5000/signup \</span></span>
+<span class="line"><span class="cmd">  -H "Content-Type: application/json" \</span></span>
+<span class="line"><span class="cmd">  -d '{"shop_name":"Test Shop","password":"demo123","gstin":"19AADCB2230M1ZP","pincode":"700019"}'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># View all waitlist entries</span></span>
+<span class="line"><span class="cmd">curl http://localhost:5000/waitlist</span></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🐛 Common Issues</div>
+    <ul class="styled">
+      <li><strong>Port mismatch</strong>: Backend on 8000 but frontend expects 5000 → update API_BASE in index.html or add <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">--port 5000</code> to uvicorn.</li>
+      <li><strong>CORS error in browser</strong>: Should never happen (allow_origins=["*"]) but if it does, check that backend is actually running.</li>
+      <li><strong>Excel not found</strong>: Place <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">Kolkata Hubs Excel Sheet Layout.xlsx</code> in the same directory as <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">main.py</code>. The app still runs without it — shops table is just empty.</li>
+      <li><strong>"Module not found"</strong>: Run <code style="font-family:monospace;background:#1e0a14;padding:2px 6px;border-radius:4px;">pip install fastapi uvicorn pandas openpyxl</code> inside your venv.</li>
+      <li><strong>DB locked error</strong>: SQLite doesn't support concurrent writes well. Stop other connections before restarting server.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 9. Q&A -->
+<div class="doc-section" id="sec-qa">
+  <div class="section-number">09 / HACKATHON Q&amp;A</div>
+  <h2 class="section-title">25 Hackathon Q&amp;A</h2>
+  <p class="section-desc">Clear, confident answers to the questions judges are most likely to ask during the demo.</p>
+
+  <div class="qa-grid">
+
+    <div class="qa-card">
+      <div class="qa-num">Q01</div>
+      <div class="qa-q">What problem does OwnLocal actually solve?</div>
+      <div class="qa-a">Local shops lose customers to e-commerce giants. OwnLocal inverts this by making loyalty financially rewarding — customers earn fractional equity in shops they frequent, creating a stake in their success. Both sides win: shops get sticky loyalty, customers build neighbourhood wealth.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q02</div>
+      <div class="qa-q">Why FastAPI over Flask or Django?</div>
+      <div class="qa-a">FastAPI gives us <code>automatic Swagger UI</code> at <code>/docs</code>, Pydantic validation, and async support — all with less boilerplate than Flask. It's production-grade and the fastest Python framework by benchmark. For a hackathon, the auto-docs alone save hours of documentation work.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q03</div>
+      <div class="qa-q">Why SQLite instead of PostgreSQL or MongoDB?</div>
+      <div class="qa-a">SQLite is zero-config, ships with Python, and stores everything in a single file. For a hackathon demo, this means instant setup, easy reset (just delete the file), and no external service dependencies. The app is production-migratable — swapping in PostgreSQL requires only changing the connection string.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q04</div>
+      <div class="qa-q">How is equity actually calculated?</div>
+      <div class="qa-a">Every ₹10 spent = 1 token. Tokens accumulate into tiers: Bronze at 500 (free monthly perk), Silver at 2,000 (5% discount + voting rights), Gold at 10,000 (legal revenue-share equity). The base equity percentage per shop ranges from 1.0% to 11.2% depending on the hub type and market demand.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q05</div>
+      <div class="qa-q">Is this legally compliant? Can you give equity in a shop?</div>
+      <div class="qa-a">The Gold tier equity is designed as "sentimental/community equity" in the MVP — a loyalty contract, not a securities instrument. For production, it would use a tokenized ownership structure under India's SEBI sandbox or as a contractual profit-sharing agreement, which is legal. The MVP clearly demos the UX and economic model.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q06</div>
+      <div class="qa-q">Where is user data stored? Do you have a user database?</div>
+      <div class="qa-a">By design, user data (equity balance, tokens, activity ledger) lives in <code>localStorage</code> on the client. This avoids a user auth database for the MVP, keeps the demo fast, and lets each judge see a fresh wallet. The <code>/portfolio</code> endpoint exists as a stub for future server-side user accounts.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q07</div>
+      <div class="qa-q">How do you verify a transaction is real?</div>
+      <div class="qa-a">In the MVP, transactions are simulated in the UI. In production, verification would use UPI payment webhooks (Razorpay/PhonePe) — the <code>/transaction</code> endpoint would be called only after a confirmed payment. The GSTIN verification flow and offline mint feature show the production-ready path.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q08</div>
+      <div class="qa-q">What is the Offline Verifier feature?</div>
+      <div class="qa-a">Merchants can manually log in-store purchases by entering the customer's phone number and bill amount. This pushes equity tokens directly to that customer's wallet, solving the "no app at checkout" problem. It's critical for Kolkata's informal retail sector where digital payments aren't universal.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q09</div>
+      <div class="qa-q">How does the map work? Is it real-time?</div>
+      <div class="qa-a">We embed OpenStreetMap iframes with bounding boxes specific to each pincode area. The hotspot overlays are positioned with CSS top/left percentages. It's a real live map with no API key required. For production, we'd use Mapbox or Google Maps with real shop pins from the database.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q10</div>
+      <div class="qa-q">How is the shop data populated?</div>
+      <div class="qa-a">On startup, the backend reads <code>Kolkata Hubs Excel Sheet Layout.xlsx</code> using Pandas. Each row maps to a hub type (Academic, IT, Premium, etc.), and the <code>HUB_CONFIG</code> dict assigns category, emoji, footfall, and equity percentage. This real Kolkata data makes the demo geographically authentic.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q11</div>
+      <div class="qa-q">How does merchant authentication work?</div>
+      <div class="qa-a">Merchants register with shop name (unique ID) + password + GSTIN. Login does a direct SQL match. Sessions persist via <code>localStorage</code> flags. In production, we'd add bcrypt password hashing and JWT tokens — the architecture already supports this upgrade with minimal refactoring.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q12</div>
+      <div class="qa-q">Can multiple shops have the same name?</div>
+      <div class="qa-a">No. The <code>merchants</code> table has a <code>UNIQUE</code> constraint on <code>shop_name</code>, and the backend returns a clear 400 error if a duplicate is attempted. This prevents accidental double-registration and is enforced at both the API validation layer and the database constraint level.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q13</div>
+      <div class="qa-q">What is the token market feature?</div>
+      <div class="qa-a">In the Wealth Wallet (Portfolio section), users can list their earned tokens for sale to other community members. This creates a secondary market for hyper-local loyalty — someone who shopped at 8B Chai 200 times can sell their tokens to a new resident who wants instant Silver status. It's P2P equity trading at neighbourhood scale.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q14</div>
+      <div class="qa-q">How does the AI insight work?</div>
+      <div class="qa-a">The <code>aiInsight(shop)</code> function is a rule-based engine (not an LLM call) that analyses shop rating, footfall, and category to generate investment-style insights like "Hidden gem!" or "Monitor before investing." It adds perceived intelligence without API latency. A real AI integration (Gemini/Claude) would be the next step.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q15</div>
+      <div class="qa-q">What's the business model for OwnLocal?</div>
+      <div class="qa-a">Three revenue streams: (1) Transaction fee: 0.5-1% on verified purchases routed through OwnLocal. (2) Merchant SaaS: Monthly subscription for the Merchant Suite dashboard. (3) Token marketplace: Small % on secondary token sales. The equity model aligns all parties — OwnLocal wins only when local shops grow.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q16</div>
+      <div class="qa-q">How does this scale beyond Kolkata?</div>
+      <div class="qa-a">The pincode-based architecture is city-agnostic. Scaling to Mumbai or Bangalore requires adding new pincodes to the <code>LOCATION_DATABASE</code>, uploading a new Excel file with local shops, and configuring hub types. The backend handles any pincode with the default config. A city-onboarding admin panel would be the next feature.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q17</div>
+      <div class="qa-q">What's the waitlist for?</div>
+      <div class="qa-a">User-side app features (UPI bank linking, real equity certificates, portfolio analytics) aren't in the MVP. The waitlist captures demand from users who want the full product, demonstrates go-to-market traction, and gives us pincode data to prioritise which areas to launch in first.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q18</div>
+      <div class="qa-q">How does OTP login work?</div>
+      <div class="qa-a">The OTP is simulated in the frontend for the demo — the 4-digit code is displayed in the OTP hint (in demo mode). In production, it would integrate with MSG91 or Twilio to send real SMS OTPs. The frontend flow is production-identical; only the SMS dispatch is mocked.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q19</div>
+      <div class="qa-q">Is the app production-ready?</div>
+      <div class="qa-a">The architecture is production-ready in shape. What needs upgrading for launch: (1) Password hashing with bcrypt, (2) JWT auth tokens, (3) PostgreSQL migration, (4) Real UPI payment webhooks, (5) SMS OTP via MSG91. Each is a well-understood engineering task — the hard part (product design, UX, business logic) is already done.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q20</div>
+      <div class="qa-q">How does the recommendation engine work?</div>
+      <div class="qa-a">The <code>getRecommendedShops()</code> function scores each shop as: <code>rating × 20 + (footfall / 10) + bonus if high spender</code>. Top 2 scoring shops get the "⭐ Recommended for you" badge. It's lightweight, runs in-browser, and can be upgraded to server-side ML recommendations using past transaction data.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q21</div>
+      <div class="qa-q">What happens if the backend is down?</div>
+      <div class="qa-a">The frontend degrades gracefully. The <code>apiFetch</code> helper catches network errors and returns <code>{error: "Cannot reach backend"}</code>. The app still works for browsing shops, exploring the map, and simulating purchases — because the shop data and local state are managed client-side in <code>localStorage</code>.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q22</div>
+      <div class="qa-q">What are the different stakeholder tiers and their benefits?</div>
+      <div class="qa-a"><strong>🥉 Bronze (500 tokens)</strong>: Free monthly item (category-specific, e.g. coffee at a café). <strong>🥈 Silver (2,000 tokens)</strong>: 5% lifetime discount + voting rights on shop decisions. <strong>🥇 Gold (10,000 tokens)</strong>: Legal revenue-share equity certificate — actual fractional ownership in the shop's profits.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q23</div>
+      <div class="qa-q">How does GSTIN verification work?</div>
+      <div class="qa-a">The frontend shows a verification spinner for 2 seconds before registering the merchant. In the MVP, GSTIN format is validated (must be exactly 15 characters, stored uppercase). Production would call the <code>https://api.gst.gov.in</code> public verification API to confirm the GSTIN is real and matches the business name.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q24</div>
+      <div class="qa-q">What's the biggest technical risk and how do you mitigate it?</div>
+      <div class="qa-a">Equity fraud — users gaming the system with fake purchases. Mitigation: (1) UPI webhook verification ensures only real payments trigger equity. (2) GSTIN-verified merchants can't be faked. (3) Rate-limiting on the transaction endpoint. (4) Anomaly detection on spending patterns. The MVP's demo-mode simplicity doesn't expose these in production.</div>
+    </div>
+
+    <div class="qa-card">
+      <div class="qa-num">Q25</div>
+      <div class="qa-q">Why will OwnLocal win the hackathon?</div>
+      <div class="qa-a">Three reasons: (1) <strong>Real problem</strong> — local shop loyalty is broken in India, and OwnLocal fixes it with a genuinely novel economic mechanism. (2) <strong>Full-stack polish</strong> — working frontend + backend + real Kolkata data, not just a slide deck. (3) <strong>Clear path to market</strong> — GSTIN system, offline verifier, and merchant dashboard show we understand the real operational constraints of Indian retail.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div style="padding:48px;border-top:1px solid #1a0d12;text-align:center;">
+  <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:white;margin-bottom:8px;">Own<span style="color:#ff8fa3;">Local</span></div>
+  <div style="font-size:12px;color:#4a3038;">Backend Docs · FastAPI v3.0.0 · Built for Kolkata 💖</div>
+</div>
+
+</main>
+</div>
+
+<script>
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Highlight active nav on scroll
+const sections = ['sec-overview','sec-stack','sec-endpoints','sec-logic','sec-db','sec-flow','sec-run','sec-debug','sec-qa'];
+const navBtns = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', () => {
+  let current = sections[0];
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top < 120) current = id;
+  });
+  navBtns.forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('onclick')?.includes(current));
+  });
+}, { passive: true });
+</script>
+</body>
+</html>

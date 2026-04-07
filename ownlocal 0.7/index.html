@@ -1,0 +1,2691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OwnLocal | Hyper-Local Equity</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════
+   ROOT & RESET
+══════════════════════════════════════════════════ */
+:root {
+  --pink:       #ff8fa3;
+  --pink-dark:  #c2185b;
+  --pink-soft:  #fff5f7;
+  --pink-pale:  #ffe3e8;
+  --pink-rim:   #ffcdd8;
+  --berry:      #4a2c2a;
+  --berry-mid:  #7b4f47;
+  --glass:      rgba(255,255,255,0.88);
+  --shadow-sm:  0 2px 12px rgba(255,143,163,0.12);
+  --shadow-md:  0 8px 32px rgba(255,143,163,0.20);
+  --shadow-lg:  0 20px 60px rgba(255,143,163,0.25);
+  --ease-smooth: cubic-bezier(.4,0,.2,1);
+  --ease-spring: cubic-bezier(.34,1.56,.64,1);
+  --transition:  all 0.3s var(--ease-smooth);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--pink-soft);
+  color: var(--berry);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4, .logo { font-family: 'Poppins', sans-serif; letter-spacing: -0.01em; }
+img, iframe { display: block; max-width: 100%; }
+
+/* ══════════════════════════════════════════════════
+   PAGE-LOAD FADE IN
+══════════════════════════════════════════════════ */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeSlideUp 0.55s var(--ease-smooth) both; }
+.fade-in-1 { animation-delay: 0.05s; }
+.fade-in-2 { animation-delay: 0.15s; }
+.fade-in-3 { animation-delay: 0.25s; }
+.fade-in-4 { animation-delay: 0.35s; }
+.fade-in-5 { animation-delay: 0.45s; }
+
+/* ══════════════════════════════════════════════════
+   SECTION SYSTEM
+══════════════════════════════════════════════════ */
+.app-section { display: none; }
+.app-section.active { display: block; }
+
+/* ══════════════════════════════════════════════════
+   BUTTON SYSTEM — smooth hover + active press
+══════════════════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+  padding: 12px 28px;
+  border: none; border-radius: 100px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative; overflow: hidden;
+  min-height: 44px; /* Mobile tap target */
+  user-select: none;
+  white-space: nowrap;
+}
+.btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background 0.2s;
+}
+.btn:hover { transform: scale(1.04); box-shadow: 0 8px 24px rgba(255,143,163,0.30); transition: all 0.3s ease; }
+.btn:hover::after { background: rgba(255,255,255,0.08); }
+.btn:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(255,143,163,0.2); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  color: white;
+  box-shadow: 0 4px 16px rgba(255,143,163,0.3);
+}
+.btn-secondary {
+  background: transparent; color: white;
+  border: 2px solid rgba(255,255,255,0.45);
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.12); }
+.btn-ghost {
+  background: transparent; color: var(--pink-dark);
+  border: 1.5px solid var(--pink-rim);
+}
+.btn-ghost:hover { background: var(--pink-soft); box-shadow: var(--shadow-sm); }
+.btn-berry {
+  background: var(--berry); color: white;
+  box-shadow: 0 4px 16px rgba(74,44,42,0.2);
+}
+.btn-sm { padding: 8px 18px; font-size: 12px; min-height: 36px; }
+.btn-lg { padding: 16px 44px; font-size: 16px; min-height: 54px; }
+.btn-full { width: 100%; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+/* ══════════════════════════════════════════════════
+   PINCODE SCREEN
+══════════════════════════════════════════════════ */
+#section-pincode {
+  position: fixed; inset: 0;
+  background: var(--pink-soft);
+  z-index: 100;
+  display: none; flex-direction: column;
+  justify-content: center; align-items: center;
+  padding: 24px;
+}
+#section-pincode.active { display: flex; }
+.pincode-logo { font-size: 2.8rem; font-weight: 800; margin-bottom: 10px; }
+.pincode-logo span { color: var(--pink); }
+.pincode-tagline { font-size: 0.95rem; font-weight: 500; color: var(--berry-mid); margin-bottom: 32px; text-align: center; }
+.pincode-input {
+  background: white;
+  border: 2px solid var(--pink-pale);
+  padding: 16px 24px;
+  border-radius: 20px;
+  text-align: center;
+  font-size: 1.6rem; font-weight: 700;
+  width: min(220px, 90vw);
+  margin-bottom: 20px;
+  outline: none;
+  font-family: 'Syne', sans-serif;
+  color: var(--berry);
+  transition: border-color 0.25s, box-shadow 0.25s;
+  letter-spacing: 4px;
+}
+.pincode-input:focus { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(255,143,163,0.15); }
+.pincode-hint { font-size: 12px; color: #bbb; margin-top: 14px; text-align: center; }
+
+/* ══════════════════════════════════════════════════
+   MAP OVERLAY
+══════════════════════════════════════════════════ */
+#map-container { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+#jmap-img {
+  width: 100%; height: 100%;
+  opacity: 0.12;
+  transition: opacity 0.5s ease;
+  pointer-events: none; border: none;
+}
+.map-active #jmap-img { opacity: 0.92; pointer-events: auto; }
+.map-hotspot {
+  position: absolute;
+  width: 44px; height: 44px;
+  background: rgba(255,143,163,0.9);
+  border: 3px solid white;
+  border-radius: 50%;
+  cursor: pointer; z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 4px 16px rgba(255,143,163,0.5);
+  transition: var(--transition);
+  pointer-events: auto;
+}
+.map-hotspot:hover { transform: scale(1.2); box-shadow: 0 8px 24px rgba(255,143,163,0.6); }
+.map-hotspot .hotspot-label {
+  position: absolute; bottom: -26px; left: 50%; transform: translateX(-50%);
+  background: white; border-radius: 8px; padding: 3px 9px;
+  font-size: 10px; font-weight: 700; white-space: nowrap;
+  color: var(--berry); box-shadow: var(--shadow-sm);
+}
+
+/* ══════════════════════════════════════════════════
+   SHOP SIDEBAR
+══════════════════════════════════════════════════ */
+#shop-sidebar {
+  position: fixed; left: -420px; top: 0;
+  width: 390px; height: 100%;
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 50;
+  transition: left 0.45s var(--ease-smooth);
+  box-shadow: 12px 0 40px rgba(0,0,0,0.04);
+  padding: 20px;
+  overflow-y: auto;
+  border-right: 1px solid rgba(255,227,232,0.6);
+}
+#shop-sidebar.visible { left: 0; }
+.sidebar-back-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--pink); font-weight: 700; font-size: 13px;
+  background: var(--pink-soft); border: 1.5px solid var(--pink-rim);
+  border-radius: 100px; padding: 7px 16px;
+  cursor: pointer; transition: var(--transition);
+  margin-bottom: 18px;
+}
+.sidebar-back-btn:hover { background: var(--pink-pale); transform: translateX(-3px); }
+.shop-thumb {
+  width: 60px; height: 60px; border-radius: 16px;
+  background: var(--pink-pale);
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 26px; transition: var(--transition);
+}
+#loading-shops { text-align: center; padding: 24px; color: #bbb; font-size: 13px; display: none; }
+
+/* ══════════════════════════════════════════════════
+   MAIN LANDING
+══════════════════════════════════════════════════ */
+#section-landing { position: relative; z-index: 10; }
+.nav-link {
+  cursor: pointer;
+  transition: color 0.25s;
+  font-weight: 600; color: #999; font-size: 14px;
+  text-decoration: none;
+  padding: 4px 0;
+  position: relative;
+}
+.nav-link::after {
+  content: ''; position: absolute; bottom: -2px; left: 0;
+  width: 0; height: 2px; background: var(--pink);
+  transition: width 0.25s var(--ease-smooth);
+  border-radius: 2px;
+}
+.nav-link:hover { color: var(--pink); }
+.nav-link:hover::after { width: 100%; }
+
+/* ══════════════════════════════════════════════════
+   HERO SECTION
+══════════════════════════════════════════════════ */
+.hero-section {
+  max-width: 960px; margin: 0 auto;
+  padding: clamp(60px,10vw,100px) 24px clamp(50px,8vw,80px);
+  text-align: center;
+}
+.hero-h1 {
+  font-size: clamp(2.6rem, 7vw, 5rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-weight: 800; line-height: 1.08;
+  color: var(--berry); margin-bottom: 22px;
+  letter-spacing: -1px;
+}
+.hero-h1 span { color: var(--pink); }
+.hero-sub {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  color: #999; max-width: 460px; margin: 0 auto 40px;
+  font-weight: 400; line-height: 1.6;
+}
+
+/* Glass section for features */
+.glass-section {
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 40px;
+  border: 2px solid rgba(255,255,255,0.9);
+  margin: 0 auto; padding: 60px 32px;
+  box-shadow: 0 4px 40px rgba(255,143,163,0.08);
+}
+
+/* Feature cards */
+.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; }
+.feature-icon {
+  width: 68px; height: 68px;
+  background: var(--pink-pale); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.7rem; margin: 0 auto 16px;
+  transition: var(--transition);
+}
+.feature-icon:hover { transform: scale(1.12) rotate(-4deg); background: var(--pink-rim); }
+.feature-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+.feature-text { color: #aaa; font-size: 13px; line-height: 1.65; }
+
+/* Merchant CTA banner */
+.merchant-banner {
+  background: var(--berry);
+  color: white;
+  border-radius: 40px;
+  padding: clamp(40px,6vw,60px) clamp(24px,5vw,56px);
+  position: relative; overflow: hidden;
+  box-shadow: 0 20px 60px rgba(74,44,42,0.2);
+}
+.merchant-banner::before {
+  content: ''; position: absolute; top: -40px; right: -40px;
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(255,143,163,0.18) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.merchant-banner h2 {
+  font-size: clamp(1.8rem, 5vw, 3.2rem);
+  font-weight: 800; margin-bottom: 14px;
+  letter-spacing: -0.5px;
+}
+.merchant-banner p { color: rgba(255,200,210,0.9); font-size: 1rem; margin-bottom: 30px; max-width: 460px; }
+.merchant-btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* ══════════════════════════════════════════════════
+   EQUITY BAR
+══════════════════════════════════════════════════ */
+#equity-bar {
+  position: fixed; bottom: 20px; right: 20px; z-index: 60;
+  background: var(--glass);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 2px solid white;
+  border-radius: 24px;
+  padding: 14px 20px;
+  box-shadow: var(--shadow-md);
+  min-width: 220px;
+  display: none; flex-direction: column; gap: 5px;
+  transition: var(--transition);
+}
+#equity-bar.show { display: flex; animation: fadeSlideUp 0.4s var(--ease-spring) both; }
+.equity-bar-label { font-size: 10px; color: #bbb; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; }
+.equity-row { display: flex; justify-content: space-between; align-items: center; }
+.equity-row-label { font-size: 12px; font-weight: 600; }
+.equity-progress-wrap { background: var(--pink-pale); border-radius: 20px; height: 6px; margin-top: 4px; overflow: hidden; }
+.equity-progress-fill {
+  background: linear-gradient(90deg, var(--pink), var(--pink-dark));
+  height: 100%; border-radius: 20px;
+  transition: width 0.7s var(--ease-smooth);
+}
+
+/* ══════════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════════ */
+#toast-container {
+  position: fixed; bottom: 100px; right: 20px; z-index: 300;
+  display: flex; flex-direction: column; gap: 10px;
+  pointer-events: none;
+  max-width: min(280px, 90vw);
+}
+.toast {
+  background: white;
+  border-left: 4px solid var(--pink);
+  border-radius: 16px;
+  padding: 12px 18px;
+  font-size: 13px; font-weight: 600;
+  color: var(--berry);
+  box-shadow: var(--shadow-md);
+  animation: slideInToast 0.4s var(--ease-spring), fadeOutToast 0.5s ease 3.5s forwards;
+  line-height: 1.4;
+}
+@keyframes slideInToast {
+  from { transform: translateX(110%); opacity: 0; }
+  to   { transform: translateX(0);   opacity: 1; }
+}
+@keyframes fadeOutToast {
+  to { opacity: 0; transform: translateX(110%); }
+}
+
+/* ══════════════════════════════════════════════════
+   BADGES / TIERS
+══════════════════════════════════════════════════ */
+.ai-insight-badge {
+  background: linear-gradient(135deg, #fff0f3, #ffe0e8);
+  border: 1px solid var(--pink-rim);
+  border-radius: 12px; padding: 7px 11px;
+  font-size: 11.5px; color: var(--pink-dark);
+  margin-top: 9px; line-height: 1.45;
+}
+.recommended-badge {
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  color: white; font-size: 10px; font-weight: 700;
+  padding: 3px 10px; border-radius: 20px;
+  display: inline-block; margin-bottom: 5px;
+}
+.tier-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 800;
+  padding: 3px 11px; border-radius: 20px;
+  margin-bottom: 5px; letter-spacing: 0.4px;
+}
+.tier-bronze { background: linear-gradient(135deg,#ffd6b0,#f5a86a); color: #7a3800; }
+.tier-silver { background: linear-gradient(135deg,#e8e8f0,#b8b8d0); color: #333355; }
+.tier-gold   { background: linear-gradient(135deg,#ffe08a,#ffc107); color: #5c3a00; }
+.tier-bar-fill {
+  background: linear-gradient(90deg, var(--pink), var(--berry));
+  height: 100%; border-radius: 20px;
+  transition: width 0.7s var(--ease-smooth);
+}
+.shop-online-btn {
+  margin-top: 7px;
+  background: linear-gradient(135deg, #fff0f3, var(--pink-pale));
+  color: var(--pink-dark);
+  border: 1.5px solid var(--pink-rim);
+  border-radius: 100px; padding: 7px 16px;
+  font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: var(--transition);
+  font-family: 'Inter', sans-serif;
+  min-height: 36px;
+}
+.shop-online-btn:hover { background: var(--pink-pale); transform: scale(1.04); box-shadow: var(--shadow-sm); }
+.shop-online-btn:active { transform: scale(0.97); }
+
+/* ══════════════════════════════════════════════════
+   PRODUCT DRAWER
+══════════════════════════════════════════════════ */
+#product-drawer-overlay {
+  position: fixed; inset: 0; z-index: 79;
+  background: rgba(74,44,42,0.28);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  display: none; justify-content: center; align-items: center;
+  padding: 16px;
+}
+#product-drawer-overlay.open { display: flex; }
+#product-drawer {
+  background: var(--pink-soft);
+  border-radius: 28px; border: 2px solid white;
+  box-shadow: var(--shadow-lg);
+  width: 100%; max-width: 380px;
+  max-height: 90vh; overflow-y: auto;
+  padding: 0 0 24px;
+  transform: scale(0.9) translateY(16px);
+  opacity: 0;
+  transition: transform 0.35s var(--ease-spring), opacity 0.3s ease;
+}
+#product-drawer-overlay.open #product-drawer { transform: scale(1) translateY(0); opacity: 1; }
+.drawer-header {
+  background: white; border-radius: 26px 26px 0 0;
+  padding: 20px 22px 16px;
+  border-bottom: 1.5px solid var(--pink-pale);
+  display: flex; justify-content: space-between; align-items: flex-start;
+  position: sticky; top: 0; z-index: 2;
+}
+.drawer-close {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--pink-soft); border: none; cursor: pointer;
+  font-size: 16px; display: flex; align-items: center; justify-content: center;
+  color: var(--pink); transition: var(--transition); flex-shrink: 0;
+  min-height: 32px;
+}
+.drawer-close:hover { background: var(--pink-pale); transform: rotate(90deg); }
+.product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px 16px 0; }
+.product-card {
+  background: white; border: 1.5px solid var(--pink-pale);
+  border-radius: 20px; padding: 16px 12px 14px;
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center; gap: 5px;
+  transition: var(--transition);
+}
+.product-card:hover { box-shadow: 0 6px 24px rgba(255,143,163,0.18); transform: translateY(-3px); }
+.product-emoji {
+  font-size: 36px; width: 64px; height: 64px;
+  background: linear-gradient(135deg, #fff0f3, var(--pink-pale));
+  border-radius: 18px; display: flex; align-items: center; justify-content: center;
+  margin-bottom: 5px;
+}
+.product-buy-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  color: white; border: none; border-radius: 100px;
+  padding: 9px 0; font-size: 12px; font-weight: 700;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: var(--transition); margin-top: 5px;
+  min-height: 36px;
+}
+.product-buy-btn:hover { opacity: 0.88; transform: scale(1.04); box-shadow: 0 4px 12px rgba(255,143,163,0.3); }
+.product-buy-btn:active { transform: scale(0.97); }
+
+/* ══════════════════════════════════════════════════
+   CART
+══════════════════════════════════════════════════ */
+#cart-section {
+  margin: 14px 16px 0;
+  border-radius: 20px; overflow: hidden;
+  border: 1.5px solid var(--pink-pale); background: white;
+}
+#cart-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 13px 16px; cursor: pointer; background: white;
+  user-select: none; transition: background 0.2s;
+}
+#cart-header:hover { background: var(--pink-soft); }
+#cart-header-left { display: flex; align-items: center; gap: 8px; }
+#cart-count-badge {
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  color: white; font-size: 10px; font-weight: 800;
+  padding: 2px 9px; border-radius: 20px;
+  min-width: 22px; text-align: center;
+  transition: transform 0.2s var(--ease-spring);
+}
+#cart-count-badge.bump { transform: scale(1.5); }
+#cart-chevron { font-size: 12px; color: var(--pink); transition: transform 0.3s var(--ease-smooth); }
+#cart-chevron.open { transform: rotate(180deg); }
+#cart-body {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.4s var(--ease-smooth), padding 0.3s ease;
+  padding: 0 12px;
+}
+#cart-body.open { max-height: 420px; padding: 4px 12px 12px; }
+.cart-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; margin-bottom: 6px;
+  background: var(--pink-soft);
+  border: 1px solid var(--pink-pale);
+  border-radius: 14px;
+  animation: cartItemIn 0.25s var(--ease-smooth);
+}
+@keyframes cartItemIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.cart-item-emoji { font-size: 20px; flex-shrink: 0; }
+.cart-item-info { flex: 1; }
+.cart-item-name  { font-size: 12px; font-weight: 700; color: var(--berry); }
+.cart-item-price { font-size: 11px; font-weight: 800; color: var(--pink); }
+.cart-remove-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 14px; color: var(--pink-rim);
+  padding: 4px 7px; border-radius: 8px;
+  transition: var(--transition);
+  font-family: 'Inter', sans-serif;
+  min-height: 30px;
+}
+.cart-remove-btn:hover { background: #fff0f3; color: var(--pink-dark); transform: scale(1.15); }
+#cart-footer {
+  border-top: 1.5px solid var(--pink-pale);
+  padding: 10px 12px 0;
+  display: none; flex-direction: column; gap: 8px;
+}
+#cart-footer.visible { display: flex; }
+#cart-total-row { display: flex; justify-content: space-between; align-items: center; }
+#cart-total-label { font-size: 11px; color: #aaa; font-weight: 600; }
+#cart-total-value { font-size: 15px; font-weight: 800; color: var(--berry); }
+#checkout-btn {
+  width: 100%; padding: 13px 0;
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  color: white; border: none; border-radius: 100px;
+  font-size: 13px; font-weight: 800; cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: var(--transition); letter-spacing: 0.2px;
+  min-height: 44px;
+}
+#checkout-btn:hover { opacity: 0.9; transform: scale(1.02); box-shadow: 0 6px 20px rgba(255,143,163,0.35); }
+#checkout-btn:active { transform: scale(0.98); }
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%,60%  { transform: translateX(-6px); }
+  40%,80%  { transform: translateX(6px); }
+}
+.shake { animation: shake 0.4s ease; }
+
+/* ══════════════════════════════════════════════════
+   AI BUBBLE
+══════════════════════════════════════════════════ */
+#ai-bubble {
+  position: fixed; bottom: 24px; left: 24px; z-index: 70;
+  width: 54px; height: 54px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  display: none; align-items: center; justify-content: center;
+  font-size: 24px; cursor: pointer;
+  box-shadow: 0 6px 24px rgba(255,143,163,0.45);
+  transition: var(--transition);
+}
+#ai-bubble:hover { transform: scale(1.12); box-shadow: 0 10px 32px rgba(255,143,163,0.55); }
+#ai-bubble:active { transform: scale(0.95); }
+#ai-bubble.show { display: flex; animation: fadeSlideUp 0.4s var(--ease-spring) both; }
+#ai-chat-panel {
+  position: fixed; bottom: 90px; left: 24px; z-index: 70;
+  width: min(290px, calc(100vw - 48px));
+  background: white; border: 2px solid var(--pink-pale);
+  border-radius: 24px; padding: 18px;
+  box-shadow: var(--shadow-md);
+  display: none; flex-direction: column; gap: 10px;
+  transform: scale(0.92) translateY(8px); opacity: 0;
+  transition: var(--transition);
+}
+#ai-chat-panel.open {
+  display: flex;
+  animation: fadeSlideUp 0.3s var(--ease-spring) both;
+}
+.chat-msg {
+  background: linear-gradient(135deg, #fff0f3, var(--pink-pale));
+  border-radius: 16px 16px 16px 4px;
+  padding: 10px 14px; font-size: 12.5px;
+  line-height: 1.55; color: var(--berry);
+}
+.chat-close {
+  align-self: flex-end; font-size: 11px; color: #bbb;
+  cursor: pointer; text-decoration: underline;
+  transition: color 0.2s;
+}
+.chat-close:hover { color: var(--pink-dark); }
+
+/* ══════════════════════════════════════════════════
+   HEART BURST
+══════════════════════════════════════════════════ */
+.heart-burst {
+  position: fixed; pointer-events: none; z-index: 999;
+  font-size: 22px;
+  animation: heartFly 1s ease forwards;
+}
+@keyframes heartFly {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-80px) scale(1.8); }
+}
+
+/* ══════════════════════════════════════════════════
+   FULL-SCREEN PAGES (Portfolio, Merchant)
+══════════════════════════════════════════════════ */
+.fs-page {
+  position: fixed; inset: 0; z-index: 105;
+  background: var(--pink-soft);
+  overflow-y: auto; display: none;
+}
+.fs-page.active { display: block; animation: fadeSlideUp 0.4s var(--ease-smooth) both; }
+.fs-nav {
+  background: white; border-bottom: 1.5px solid var(--pink-pale);
+  padding: 16px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 10;
+  box-shadow: 0 2px 16px rgba(255,143,163,0.07);
+}
+.fs-logo { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: var(--berry); }
+.fs-logo span { color: var(--pink); }
+.fs-nav-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.fs-card {
+  background: white; border-radius: 20px;
+  border: 1.5px solid var(--pink-pale);
+  margin: 14px 16px 0; overflow: hidden;
+  transition: var(--transition);
+}
+.fs-card-title {
+  padding: 14px 18px 10px; font-size: 13px; font-weight: 800;
+  color: var(--berry); border-bottom: 1px solid #fff0f3;
+}
+.fs-card-body { padding: 14px 18px; }
+.stat-card {
+  background: linear-gradient(135deg, #fff0f3, var(--pink-pale));
+  border-radius: 16px; padding: 12px 16px; margin-bottom: 10px;
+  transition: var(--transition);
+}
+.stat-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.stat-label { font-size: 10px; color: var(--pink-dark); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-value { font-size: 22px; font-weight: 800; color: var(--berry); margin-top: 2px; }
+.stat-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+.holding-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid #fff5f7;
+}
+.holding-row:last-child { border-bottom: none; }
+.holding-bar-wrap { flex: 1; background: var(--pink-pale); border-radius: 20px; height: 6px; overflow: hidden; margin: 0 8px; }
+.holding-bar-fill { background: linear-gradient(90deg, var(--pink), var(--berry)); height: 100%; border-radius: 20px; transition: width 0.8s var(--ease-smooth); }
+.mkt-trend-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid #fff5f7; font-size: 12px;
+}
+.mkt-trend-row:last-child { border-bottom: none; }
+.mkt-up   { color: #4caf50; font-weight: 800; }
+.mkt-down { color: #e57373; font-weight: 800; }
+.sell-order-row {
+  background: var(--pink-soft); border: 1px solid var(--pink-pale);
+  border-radius: 14px; padding: 10px 12px; margin-bottom: 8px;
+  transition: var(--transition);
+}
+.sell-order-row:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.ledger-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid #fff5f7; font-size: 12px;
+}
+.ledger-row:last-child { border-bottom: none; }
+.pill-action-btn {
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  color: white; border: none; border-radius: 100px;
+  padding: 7px 16px; font-size: 11px; font-weight: 800;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: var(--transition); min-height: 34px;
+}
+.pill-action-btn:hover { opacity: 0.88; transform: scale(1.05); box-shadow: var(--shadow-sm); }
+.pill-action-btn:active { transform: scale(0.97); }
+.logout-btn {
+  background: transparent; color: var(--pink-dark);
+  border: 1.5px solid var(--pink-rim); border-radius: 100px;
+  padding: 7px 18px; font-size: 12px; font-weight: 700;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: var(--transition); min-height: 36px;
+}
+.logout-btn:hover { background: var(--pink-soft); transform: scale(1.03); }
+.logout-btn:active { transform: scale(0.97); }
+
+/* ══════════════════════════════════════════════════
+   PORTFOLIO TABS
+══════════════════════════════════════════════════ */
+.tab-bar {
+  display: flex; background: var(--pink-pale);
+  border-radius: 16px; padding: 3px;
+  margin: 14px 16px 0;
+}
+.tab-btn {
+  flex: 1; text-align: center;
+  padding: 8px 0; border-radius: 13px;
+  border: none; font-size: 11px; font-weight: 800;
+  cursor: pointer; background: transparent;
+  color: var(--pink-dark);
+  font-family: 'Inter', sans-serif;
+  transition: var(--transition);
+  min-height: 36px;
+}
+.tab-btn.active { background: white; color: var(--berry); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.tab-btn:hover:not(.active) { background: rgba(255,255,255,0.5); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeSlideUp 0.25s var(--ease-smooth) both; }
+
+/* ══════════════════════════════════════════════════
+   MERCHANT STATS
+══════════════════════════════════════════════════ */
+.merch-stat-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.merch-stat-box {
+  flex: 1; background: linear-gradient(135deg, #fff0f3, var(--pink-pale));
+  border-radius: 14px; padding: 10px 12px; text-align: center;
+  transition: var(--transition);
+}
+.merch-stat-box:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.merch-stat-num { font-size: 20px; font-weight: 800; color: var(--berry); }
+.merch-stat-lbl { font-size: 10px; color: var(--pink-dark); font-weight: 700; }
+.review-card {
+  background: var(--pink-soft); border: 1px solid var(--pink-pale);
+  border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; font-size: 12px;
+  transition: var(--transition);
+}
+.review-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.review-author { font-weight: 800; color: var(--berry); margin-bottom: 4px; }
+.review-text { color: #888; line-height: 1.55; }
+.stake-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.stake-table th {
+  text-align: left; font-size: 10px; font-weight: 800;
+  color: var(--pink-dark); text-transform: uppercase;
+  letter-spacing: 0.4px; padding: 6px 8px;
+  border-bottom: 1.5px solid var(--pink-pale);
+}
+.stake-table td { padding: 9px 8px; border-bottom: 1px solid #fff5f7; color: var(--berry); font-weight: 600; }
+.stake-table tr:last-child td { border-bottom: none; }
+.stake-table tr { transition: background 0.15s; }
+.stake-table tr:hover td { background: var(--pink-soft); }
+
+/* ══════════════════════════════════════════════════
+   MODALS (Partner Form, Login, OTP)
+══════════════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(74,44,42,0.38);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  z-index: 110; display: none;
+  justify-content: center; align-items: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--pink-soft);
+  border-radius: 32px; border: 2px solid white;
+  box-shadow: var(--shadow-lg);
+  width: 100%; max-width: 440px;
+  max-height: 90vh; overflow-y: auto;
+  padding: 0 0 28px;
+  transform: scale(0.9) translateY(20px); opacity: 0;
+  transition: transform 0.45s var(--ease-smooth), opacity 0.4s ease;
+}
+.modal-overlay.open .modal-box { transform: scale(1) translateY(0); opacity: 1; }
+.modal-overlay.open { animation: overlayFadeIn 0.3s ease both; }
+@keyframes overlayFadeIn { from { opacity:0; } to { opacity:1; } }
+.modal-header {
+  background: white; border-radius: 30px 30px 0 0;
+  padding: 22px 24px 16px;
+  border-bottom: 1.5px solid var(--pink-pale);
+  display: flex; justify-content: space-between; align-items: flex-start;
+  position: sticky; top: 0; z-index: 2;
+}
+.modal-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--berry); }
+.modal-subtitle { font-size: 11px; color: #aaa; margin-top: 3px; }
+.modal-close {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--pink-soft); border: none; cursor: pointer;
+  font-size: 17px; display: flex; align-items: center; justify-content: center;
+  color: var(--pink); transition: var(--transition); flex-shrink: 0;
+}
+.modal-close:hover { background: var(--pink-pale); transform: rotate(90deg) scale(1.1); }
+.modal-body { padding: 22px 24px 0; }
+.form-field { margin-bottom: 14px; }
+.form-field label {
+  display: block; font-size: 11px; font-weight: 800;
+  color: var(--berry); margin-bottom: 5px;
+  text-transform: uppercase; letter-spacing: 0.4px;
+}
+.form-field input, .form-field select, .form-field textarea {
+  width: 100%; border: 1.5px solid var(--pink-pale);
+  border-radius: 14px; padding: 11px 14px;
+  font-size: 13px; font-family: 'Inter', sans-serif;
+  outline: none; background: white; color: var(--berry);
+  transition: border-color 0.25s, box-shadow 0.25s;
+  min-height: 44px;
+}
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 4px rgba(255,143,163,0.12);
+}
+.gstin-note { font-size: 10px; color: #aaa; margin-top: 5px; line-height: 1.5; }
+
+/* ══════════════════════════════════════════════════
+   OTP MODAL SPECIFICS
+══════════════════════════════════════════════════ */
+#otp-overlay { z-index: 200; }
+.otp-input {
+  width: 100%; border: 1.5px solid var(--pink-pale);
+  border-radius: 14px; padding: 13px 16px;
+  font-size: 15px; font-family: 'DM Sans', sans-serif;
+  outline: none; background: white; color: var(--berry);
+  transition: border-color 0.25s, box-shadow 0.25s;
+  text-align: center; letter-spacing: 2px;
+  min-height: 48px;
+}
+.otp-input:focus { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(255,143,163,0.12); }
+#otp-step-verify { display: none; margin-top: 14px; }
+#otp-step-verify.show { display: block; animation: fadeSlideUp 0.3s var(--ease-smooth) both; }
+
+/* ══════════════════════════════════════════════════
+   LOGIN ERROR BOX
+══════════════════════════════════════════════════ */
+.error-box {
+  background: #fff0f3; border: 1px solid var(--pink-rim);
+  border-radius: 12px; padding: 10px 14px;
+  font-size: 12px; color: var(--pink-dark); font-weight: 700;
+  margin-bottom: 12px; display: none;
+  animation: fadeSlideUp 0.25s var(--ease-smooth) both;
+}
+
+/* ══════════════════════════════════════════════════
+   GSTIN SPINNER
+══════════════════════════════════════════════════ */
+#gstin-spinner {
+  position: fixed; inset: 0; z-index: 120;
+  background: rgba(255,245,247,0.97);
+  display: none; flex-direction: column;
+  justify-content: center; align-items: center; gap: 20px;
+}
+#gstin-spinner.show { display: flex; animation: fadeSlideUp 0.3s var(--ease-smooth) both; }
+.spinner-ring {
+  width: 56px; height: 56px;
+  border: 5px solid var(--pink-pale);
+  border-top-color: var(--pink);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ══════════════════════════════════════════════════
+   OFFLINE VERIFIER
+══════════════════════════════════════════════════ */
+.offline-verifier-card {
+  background: white; border-radius: 20px;
+  border: 1.5px solid var(--pink-pale);
+  margin: 14px 16px 0; overflow: hidden;
+}
+.offline-input {
+  width: 100%; border: 1.5px solid var(--pink-pale);
+  border-radius: 12px; padding: 11px 14px;
+  font-size: 13px; font-family: 'Inter', sans-serif;
+  outline: none; background: #fff9fb; color: var(--berry);
+  transition: border-color 0.25s, box-shadow 0.25s; margin-bottom: 10px;
+  min-height: 44px;
+}
+.offline-input:focus { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(255,143,163,0.12); }
+.confirm-mint-btn {
+  width: 100%; padding: 13px;
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  color: white; border: none; border-radius: 100px;
+  font-size: 13px; font-weight: 800; cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: var(--transition);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px;
+}
+.confirm-mint-btn:hover { opacity: 0.9; transform: scale(1.02); box-shadow: var(--shadow-md); }
+.confirm-mint-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none !important; }
+.mini-spinner {
+  width: 16px; height: 16px;
+  border: 2.5px solid rgba(255,255,255,0.4);
+  border-top-color: white; border-radius: 50%;
+  animation: spin 0.7s linear infinite; display: none;
+}
+.mini-spinner.show { display: inline-block; }
+
+/* ══════════════════════════════════════════════════
+   LOCATION PILL
+══════════════════════════════════════════════════ */
+.location-pill {
+  font-size: 11px; font-weight: 700; color: var(--pink);
+  background: #fff0f3; padding: 5px 13px;
+  border-radius: 100px; border: 1px solid var(--pink-rim);
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════════════ */
+footer {
+  text-align: center; padding: 44px 20px;
+  color: #bbb; font-size: 12px;
+  border-top: 1px solid var(--pink-pale);
+  margin-top: 20px;
+}
+
+/* ══════════════════════════════════════════════════
+   MOBILE-FIRST RESPONSIVE SYSTEM
+══════════════════════════════════════════════════ */
+
+/* ── Base mobile styles (applies to all screen sizes) ── */
+html { font-size: 16px; }
+
+/* Pincode section — better mobile centering */
+#section-pincode {
+  padding: 24px 20px;
+  gap: 0;
+}
+.pincode-logo {
+  font-size: clamp(2rem, 10vw, 2.8rem);
+  margin-bottom: 8px;
+}
+.pincode-tagline {
+  font-size: clamp(0.82rem, 3.5vw, 0.95rem);
+  max-width: 320px;
+  line-height: 1.5;
+  margin-bottom: 28px;
+}
+.pincode-input {
+  width: min(260px, 88vw);
+  font-size: clamp(1.3rem, 6vw, 1.6rem);
+  padding: 14px 20px;
+}
+.pincode-hint {
+  font-size: clamp(11px, 3vw, 12px);
+}
+
+/* Fluid typography */
+.hero-h1 {
+  font-size: clamp(2rem, 9vw, 4.2rem);
+  line-height: 1.1;
+}
+.hero-sub {
+  font-size: clamp(0.9rem, 3.5vw, 1.15rem);
+}
+
+/* Sticky nav — compact on mobile */
+nav {
+  padding: clamp(12px, 3vw, 18px) clamp(16px, 4vw, 28px);
+  gap: 8px;
+}
+
+/* ── Small phones (max 480px) ── */
+@media (max-width: 480px) {
+  .btn { font-size: 13px; padding: 11px 20px; }
+  .btn-lg { padding: 15px 28px; font-size: 14px; width: 100%; max-width: 320px; }
+  .hero-section { padding: 44px 16px 36px; }
+  .glass-section { padding: 28px 16px; }
+  .feature-grid { grid-template-columns: 1fr; gap: 20px; }
+  .merchant-banner { padding: 28px 20px; }
+  .merchant-btn-row { flex-direction: column; gap: 10px; }
+  .merchant-btn-row .btn { width: 100%; justify-content: center; }
+  .modal-box { border-radius: 20px 20px 0 0; max-height: 95vh; }
+  .modal-body { padding: 18px 18px 0; }
+  .form-field input, .form-field select, .form-field textarea { font-size: 16px; /* prevents iOS zoom */ }
+  .fs-nav { flex-wrap: wrap; padding: clamp(10px,3vw,18px) 16px; gap: 8px; }
+  .fs-nav-right { width: 100%; justify-content: flex-start; gap: 8px; flex-wrap: wrap; }
+  .fs-logo { font-size: 13px; }
+  .fs-card { margin: 0 10px 12px; border-radius: 18px; }
+  .fs-card-title { font-size: 12px; padding: 12px 14px; }
+  .fs-card-body { padding: 12px 14px; }
+  .stat-card { border-radius: 14px; padding: 12px 14px; }
+  .stat-value { font-size: 20px; }
+  .merch-stat-num { font-size: 18px; }
+  .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .product-card { padding: 12px; }
+  .product-emoji { font-size: 26px; }
+  #cart-section { margin: 10px; }
+  .holding-row { font-size: 11px; }
+  .stake-table { font-size: 11px; }
+  .stake-table th { font-size: 9px; }
+}
+
+/* ── Tablets and larger phones (481px–768px) ── */
+@media (max-width: 768px) {
+  /* Sidebar → bottom sheet */
+  #shop-sidebar {
+    left: 0 !important;
+    top: auto !important;
+    bottom: -100%;
+    width: 100% !important;
+    height: 72vh;
+    border-radius: 26px 26px 0 0;
+    border-right: none;
+    border-top: 2px solid var(--pink-pale);
+    transition: bottom 0.45s var(--ease-smooth);
+    padding: 16px 16px 24px;
+  }
+  #shop-sidebar.visible { bottom: 0; left: 0; }
+
+  /* Drag handle for bottom sheet */
+  #shop-sidebar::before {
+    content: '';
+    display: block;
+    width: 40px; height: 4px;
+    background: var(--pink-pale);
+    border-radius: 4px;
+    margin: 0 auto 14px;
+  }
+
+  /* Equity bar */
+  #equity-bar {
+    bottom: 12px;
+    right: 12px;
+    left: 12px;
+    min-width: unset;
+    padding: 10px 14px;
+  }
+
+  /* AI bubble */
+  #ai-bubble { bottom: 96px; left: 14px; width: 48px; height: 48px; font-size: 20px; }
+  #ai-chat-panel { bottom: 155px; left: 14px; max-width: calc(100vw - 28px); }
+
+  /* Toast */
+  #toast-container { right: 12px; left: 12px; bottom: 12px; }
+  .toast { font-size: 12px; padding: 10px 14px; }
+
+  /* Nav */
+  .nav-links-desktop { display: none !important; }
+  .nav-menu-btn { display: flex !important; }
+
+  /* Hero */
+  .hero-section { padding: 50px 20px 40px; text-align: center; }
+  .hero-section .btn { margin: 0 auto; display: flex; }
+  .glass-section { padding: 32px 20px; }
+  .feature-grid { grid-template-columns: 1fr; gap: 24px; }
+
+  /* Merchant banner */
+  .merchant-btn-row { flex-direction: column; }
+  .merchant-btn-row .btn { width: 100%; justify-content: center; }
+
+  /* Modals */
+  .modal-overlay { padding: 0; align-items: flex-end; }
+  .modal-box { width: 100% !important; max-width: 100% !important; border-radius: 28px 28px 0 0; max-height: 92vh; }
+  .modal-header { border-radius: 26px 26px 0 0; }
+
+  /* Full-screen pages */
+  .fs-page { padding-bottom: 80px; }
+  .fs-nav { flex-wrap: wrap; padding: 14px 14px; gap: 8px; }
+  .fs-nav-right { width: 100%; justify-content: flex-start; }
+  .fs-card { margin: 0 12px 12px; }
+
+  /* Product drawer */
+  #product-drawer {
+    max-height: 92vh;
+    border-radius: 28px 28px 0 0;
+    padding-bottom: 20px;
+  }
+  .drawer-header { border-radius: 26px 26px 0 0; }
+  .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 14px; }
+
+  /* Sections padding */
+  #how-it-works, #merchants { padding-left: 12px !important; padding-right: 12px !important; }
+
+  /* Tab bar */
+  .tab-bar { margin: 0 12px 12px; }
+  .tab-btn { font-size: 11px; padding: 9px 10px; }
+}
+
+/* ── Tablet landscape (769px–1024px) ── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .hero-section { padding: 70px 32px 60px; }
+  #shop-sidebar { width: 340px; }
+  .feature-grid { grid-template-columns: repeat(3, 1fr); }
+  .modal-box { max-width: 480px; }
+  .fs-card { margin: 0 16px 14px; }
+}
+
+/* ── Desktop (1025px+) ── */
+@media (min-width: 1025px) {
+  .hero-section { padding: 100px 40px 80px; }
+  #shop-sidebar { width: 390px; }
+}
+
+/* ── Large desktop (1280px+) ── */
+@media (min-width: 1280px) {
+  .hero-section { padding: 120px 40px 100px; }
+}
+
+/* ── Nav mobile menu button ── */
+.nav-menu-btn {
+  display: none; background: none; border: none;
+  cursor: pointer; color: var(--berry); font-size: 22px;
+  min-height: 44px; min-width: 44px;
+  align-items: center; justify-content: center;
+  border-radius: 10px; transition: background 0.2s;
+}
+.nav-menu-btn:hover { background: var(--pink-pale); }
+@media (max-width: 768px) {
+  .nav-menu-btn { display: flex; }
+}
+
+/* ── Mobile nav dropdown ── */
+#mobile-nav-menu {
+  display: none;
+  position: absolute; top: 100%; left: 0; right: 0;
+  background: rgba(255,245,247,0.98);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--pink-pale);
+  padding: 16px 20px 20px;
+  flex-direction: column; gap: 4px;
+  z-index: 50;
+  animation: fadeSlideUp 0.25s var(--ease-smooth) both;
+  box-shadow: 0 8px 24px rgba(255,143,163,0.12);
+}
+#mobile-nav-menu.open { display: flex; }
+.mobile-nav-link {
+  padding: 12px 16px;
+  font-size: 14px; font-weight: 700; color: var(--berry);
+  border-radius: 12px; cursor: pointer;
+  transition: background 0.2s;
+  border: none; background: none; text-align: left;
+  font-family: 'Inter', sans-serif;
+}
+.mobile-nav-link:hover { background: var(--pink-pale); color: var(--pink); }
+
+/* ── Better touch targets everywhere ── */
+button, [onclick], a { -webkit-tap-highlight-color: transparent; }
+input, select, textarea { -webkit-appearance: none; appearance: none; }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23ff8fa3' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+
+/* ── Safe area for phones with notches/home bars ── */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .fs-page { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+  #equity-bar { bottom: calc(12px + env(safe-area-inset-bottom)); }
+  #shop-sidebar.visible { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+}
+
+/* ── Scrollbar styling ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--pink-pale); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--pink-rim); }
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--pink-pale); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--pink-rim); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     GLOBAL OVERLAYS (always in DOM)
+══════════════════════════════════════════════════ -->
+<div id="toast-container"></div>
+
+<div id="map-container">
+  <iframe id="jmap-img"
+    src="https://www.openstreetmap.org/export/embed.html?bbox=88.3550%2C22.5050%2C88.3750%2C22.5250&layer=mapnik"
+    allowfullscreen loading="lazy"></iframe>
+  <div id="hotspot-layer"></div>
+</div>
+
+<div id="equity-bar">
+  <div class="equity-bar-label">Your Equity Portfolio</div>
+  <div class="equity-row">
+    <span class="equity-row-label">Total Spent</span>
+    <span style="font-size:12px;font-weight:800;color:var(--pink);" id="eq-total-spend">₹0</span>
+  </div>
+  <div class="equity-row">
+    <span class="equity-row-label">Equity Earned</span>
+    <span style="font-size:12px;font-weight:800;color:#4caf50;" id="eq-total-equity">₹0</span>
+  </div>
+  <div class="equity-progress-wrap"><div class="equity-progress-fill" id="eq-progress" style="width:0%"></div></div>
+  <div style="font-size:10px;color:#aaa;margin-top:2px;" id="eq-ownership-text">Own 0% of your local area</div>
+</div>
+
+<div id="ai-bubble" onclick="toggleAIChat()">🤖</div>
+<div id="ai-chat-panel">
+  <div class="chat-msg" id="ai-chat-msg">Hey! Explore shops nearby to earn equity tokens! 💖</div>
+  <span class="chat-close" onclick="toggleAIChat()">Dismiss</span>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SHOP SIDEBAR
+══════════════════════════════════════════════════ -->
+<div id="shop-sidebar">
+  <button class="sidebar-back-btn" onclick="hideShops()">← Back to Home</button>
+  <h3 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:4px;" id="sidebar-title">Shops Near You</h3>
+  <p style="font-size:11px;color:#aaa;margin-bottom:14px;">📍 <span id="sidebar-pincode">—</span></p>
+  <div id="loading-shops">🔍 Loading shops near you…</div>
+  <div id="shop-list"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     PRODUCT DRAWER
+══════════════════════════════════════════════════ -->
+<div id="product-drawer-overlay" onclick="handleOverlayClick(event)">
+  <div id="product-drawer">
+    <div class="drawer-header">
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--berry);" id="drawer-shop-name">Shop</h3>
+        <p style="font-size:11px;color:var(--pink);font-weight:600;margin-top:3px;">Shop online &amp; earn equity 🧡</p>
+      </div>
+      <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="product-grid" id="drawer-products"></div>
+    <div id="cart-section">
+      <div id="cart-header" onclick="toggleCartBody()">
+        <div id="cart-header-left">
+          <span style="font-size:13px;font-weight:800;color:var(--berry);">🛒 Cart</span>
+          <span id="cart-count-badge">0</span>
+        </div>
+        <span id="cart-chevron">▼</span>
+      </div>
+      <div id="cart-body">
+        <div id="cart-items-list">
+          <div style="text-align:center;padding:14px 0 6px;font-size:12px;color:#ccc;">Your cart is empty 🌸</div>
+        </div>
+        <div id="cart-footer">
+          <div id="cart-total-row">
+            <span id="cart-total-label">Cart Total</span>
+            <span id="cart-total-value">₹0</span>
+          </div>
+          <button id="checkout-btn" onclick="checkoutCart()">Checkout &amp; Earn Equity 💖</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MERCHANT LOGIN MODAL
+══════════════════════════════════════════════════ -->
+<div id="login-overlay" class="modal-overlay" onclick="handleLoginOverlayClick(event)">
+  <div id="login-modal" class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Merchant Login 🔑</div>
+        <div class="modal-subtitle">Access your OwnLocal dashboard</div>
+      </div>
+      <button class="modal-close" onclick="closeLoginModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field">
+        <label>Shop Name *</label>
+        <input type="text" id="ml-shopname" placeholder="e.g. Rosé Bakery" autocomplete="username">
+      </div>
+      <div class="form-field">
+        <label>Password *</label>
+        <input type="password" id="ml-password" placeholder="Your dashboard password" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter')submitMerchantLogin()">
+      </div>
+      <div id="login-error" class="error-box"></div>
+      <button class="btn btn-primary btn-full" onclick="submitMerchantLogin()">
+        Login to Dashboard 🚀
+      </button>
+      <p style="text-align:center;font-size:11px;color:#aaa;margin-top:16px;">
+        Don't have an account?
+        <span onclick="closeLoginModal();openPartnerForm();"
+          style="color:var(--pink);font-weight:700;cursor:pointer;text-decoration:underline;">Register here</span>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     PARTNER FORM MODAL
+══════════════════════════════════════════════════ -->
+<div id="partner-overlay" class="modal-overlay" onclick="handlePartnerOverlayClick(event)">
+  <div id="partner-modal" class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Partner With Us 🏪</div>
+        <div class="modal-subtitle">Join the OwnLocal merchant ecosystem</div>
+      </div>
+      <button class="modal-close" onclick="closePartnerForm()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field">
+        <label>Shop Name *</label>
+        <input type="text" id="pf-name" placeholder="e.g. Rosé Bakery">
+      </div>
+      <div class="form-field">
+        <label>Create Password *</label>
+        <input type="password" id="pf-password" placeholder="Choose a password for your dashboard">
+      </div>
+      <div class="form-field">
+        <label>Category</label>
+        <select id="pf-category">
+          <option>Café &amp; Chai</option><option>Bakery</option><option>Restaurant</option>
+          <option>Grocery</option><option>Fashion</option><option>Bookstore</option>
+          <option>Pharmacy</option><option>Electronics</option><option>Jewelry</option>
+          <option>Art &amp; Crafts</option><option>Gift Shop</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Pincode *</label>
+        <input type="text" id="pf-pin" placeholder="700019" maxlength="6" inputmode="numeric">
+      </div>
+      <div class="form-field">
+        <label>GSTIN Number *</label>
+        <input type="text" id="pf-gstin" placeholder="e.g. 19AADCB2230M1ZP" maxlength="15"
+          style="letter-spacing:1px;text-transform:uppercase;">
+        <div class="gstin-note">15-character GST Identification Number — required for verification</div>
+      </div>
+      <div class="form-field">
+        <label>Owner Email</label>
+        <input type="email" id="pf-email" placeholder="you@example.com">
+      </div>
+      <div class="form-field">
+        <label>Monthly Footfall (approx.)</label>
+        <input type="number" id="pf-footfall" placeholder="500" min="1">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="submitPartnerForm()">
+        Verify GSTIN &amp; Open Dashboard 🚀
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     GSTIN SPINNER
+══════════════════════════════════════════════════ -->
+<div id="gstin-spinner">
+  <div class="spinner-ring"></div>
+  <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--berry);">Validating GSTIN…</div>
+  <div style="font-size:13px;color:#aaa;">This will only take a moment ✨</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     OTP AUTH MODAL
+══════════════════════════════════════════════════ -->
+<div id="otp-overlay" class="modal-overlay" style="z-index:200;" onclick="handleOtpOverlayClick(event)">
+  <div id="otp-modal" class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Create Your Account ✨</div>
+        <div class="modal-subtitle">Secure OTP verification · 30 seconds</div>
+      </div>
+      <button class="modal-close" onclick="closeOtpModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Step 1 -->
+      <div id="otp-step-phone">
+        <div style="font-size:13px;font-weight:700;color:var(--berry);margin-bottom:9px;">📱 Enter your phone number</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:5px;">
+          <span style="background:#fff0f3;border:1.5px solid var(--pink-pale);border-radius:14px;padding:12px 14px;font-size:13px;font-weight:800;color:var(--pink-dark);white-space:nowrap;min-height:44px;display:flex;align-items:center;">+91</span>
+          <input type="tel" id="otp-phone-input" class="otp-input" placeholder="10-digit number"
+            maxlength="10" inputmode="numeric" pattern="[0-9]*"
+            onkeydown="if(event.key==='Enter')sendOtp()">
+        </div>
+        <div style="font-size:11px;color:#aaa;margin-bottom:8px;">We'll send a 4-digit code to verify your number.</div>
+        <button class="btn btn-primary btn-full" onclick="sendOtp()">Send OTP 🔐</button>
+      </div>
+      <!-- Step 2 -->
+      <div id="otp-step-verify">
+        <div style="font-size:13px;font-weight:700;color:var(--berry);margin-bottom:9px;">🔑 Enter the 4-digit OTP</div>
+        <div style="background:linear-gradient(135deg,#fff0f3,var(--pink-pale));border-radius:14px;padding:10px 14px;font-size:12px;color:var(--pink-dark);font-weight:600;margin-bottom:12px;" id="otp-sent-label">
+          OTP sent to +91 XXXXXXXXXX
+        </div>
+        <input type="tel" id="otp-code-input" class="otp-input"
+          placeholder="_ _ _ _" maxlength="4" inputmode="numeric" pattern="[0-9]*"
+          style="font-size:28px;letter-spacing:12px;font-weight:800;"
+          onkeydown="if(event.key==='Enter')verifyOtp()">
+        <button class="btn btn-primary btn-full" onclick="verifyOtp()" style="margin-top:10px;">Verify &amp; Sign In 🔒</button>
+        <div style="text-align:center;margin-top:12px;">
+          <span style="font-size:11px;color:#aaa;">Didn't receive it? </span>
+          <span onclick="resendOtp()" style="font-size:11px;color:var(--pink);font-weight:700;cursor:pointer;text-decoration:underline;">Resend OTP</span>
+        </div>
+      </div>
+    </div>
+    <div style="height:4px;"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 1 — PINCODE ENTRY
+══════════════════════════════════════════════════ -->
+<div id="section-pincode" class="app-section">
+  <div class="pincode-logo fade-in fade-in-1">Own<span>Local</span></div>
+  <p class="pincode-tagline fade-in fade-in-2">Enter your pincode to start owning your neighbourhood</p>
+  <input type="text" id="pin-input" class="pincode-input fade-in fade-in-3"
+    placeholder="700019" maxlength="6" inputmode="numeric"
+    onkeydown="if(event.key==='Enter')unlockApp()">
+  <button class="btn btn-primary btn-lg fade-in fade-in-4" onclick="unlockApp()">
+    Enter ✨
+  </button>
+  <p class="pincode-hint fade-in fade-in-5">Try: 700019, 700032, 700091, 700016</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 2 — MAIN LANDING
+══════════════════════════════════════════════════ -->
+<div id="section-landing" class="app-section">
+
+  <!-- NAV -->
+  <nav style="display:flex;align-items:center;justify-content:space-between;padding:18px 28px;position:sticky;top:0;background:rgba(255,245,247,0.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);z-index:40;border-bottom:1px solid rgba(255,227,232,0.5);">
+    <div class="logo" style="font-size:1.5rem;font-weight:800;cursor:pointer;" onclick="showSection('section-landing')">
+      Own<span style="color:var(--pink);">Local</span>
+    </div>
+
+    <!-- Desktop nav links -->
+    <div class="nav-links-desktop" style="display:flex;gap:30px;">
+      <a href="#how-it-works" class="nav-link">How it Works</a>
+      <a href="#merchants" class="nav-link">For Merchants</a>
+      <span onclick="showShops()" class="nav-link" style="color:var(--pink);">Explore Shops ✨</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
+      <!-- Location pill -->
+      <div id="nav-location-wrap" style="display:none;align-items:center;gap:8px;">
+        <span id="nav-location" class="location-pill"></span>
+        <button onclick="changeLocation()"
+          style="font-size:11px;font-weight:700;color:#aaa;background:none;border:none;cursor:pointer;text-decoration:underline;min-height:36px;">
+          Change
+        </button>
+      </div>
+      <!-- Auth buttons -->
+      <button id="btn-join-waitlist" class="btn btn-primary btn-sm" onclick="handleJoinWaitlist()">
+        Join the Waitlist
+      </button>
+      <button id="btn-create-account" class="btn btn-berry btn-sm" onclick="handleUserSignUp()" style="display:none;">
+        Sign Up to Own ✨
+      </button>
+      <button id="btn-my-account" class="btn btn-berry btn-sm" style="display:none;">
+        My Account
+      </button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero-section">
+    <h1 class="hero-h1 fade-in fade-in-1">
+      Own the Street<br><span>You Walk On</span>
+    </h1>
+    <p class="hero-sub fade-in fade-in-2">Your daily chai and shopping now builds your long-term wealth.</p>
+    <button class="btn btn-primary btn-lg fade-in fade-in-3" onclick="showShops()">
+      View Live Map 🗺️
+    </button>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how-it-works" style="max-width:960px;margin:0 auto;padding:0 24px 60px;">
+    <div class="glass-section" style="text-align:center;">
+      <h2 style="font-size:clamp(1.8rem,5vw,2.4rem);font-weight:600;margin-bottom:48px;letter-spacing:-0.02em;">
+        The Ownership Loop 🌸
+      </h2>
+      <div class="feature-grid">
+        <div>
+          <div class="feature-icon">🔗</div>
+          <h3 class="feature-title">Connect Bank</h3>
+          <p class="feature-text">Link your account once. We only track verified merchant spends.</p>
+        </div>
+        <div>
+          <div class="feature-icon">👟</div>
+          <h3 class="feature-title">Shop Local</h3>
+          <p class="feature-text">Buy your regular essentials. No receipts or scanning needed.</p>
+        </div>
+        <div>
+          <div class="feature-icon">💰</div>
+          <h3 class="feature-title">Earn Equity</h3>
+          <p class="feature-text">Automatically earn tokens as rewards. After 10,000 tokens, claim a tiny sentimental share of the shop.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOR MERCHANTS -->
+  <section id="merchants" style="max-width:960px;margin:0 auto;padding:0 24px 80px;">
+    <div class="merchant-banner">
+      <h2>For Merchants 🏪</h2>
+      <p>Build the ultimate loyalty. Let your customers own a piece of your shop and grow with you.</p>
+      <div class="merchant-btn-row">
+        <button class="btn btn-primary" onclick="openPartnerForm()">Partner With Us</button>
+        <button class="btn btn-secondary" onclick="openLoginModal()">Merchant Login 🔑</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>© 2026 OwnLocal Fintech · Built with love for Kolkata 💖</footer>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 3 — USER PORTFOLIO
+══════════════════════════════════════════════════ -->
+<div id="section-portfolio" class="fs-page">
+  <div class="fs-nav">
+    <div class="fs-logo">Own<span>Local</span> · Wealth Wallet 💼</div>
+    <div class="fs-nav-right">
+      <span id="pv-location-pill" class="location-pill"></span>
+      <button class="btn btn-ghost btn-sm" onclick="closePortfolio()">← Back</button>
+      <button class="logout-btn" onclick="handleLogout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Summary stats -->
+  <div style="display:flex;gap:12px;margin:14px 16px 0;flex-wrap:wrap;">
+    <div class="stat-card" style="flex:1;min-width:130px;">
+      <div class="stat-label">Equity Value</div>
+      <div class="stat-value" id="pv-total-eq">₹0</div>
+      <div class="stat-sub">Across all Kolkata shops</div>
+    </div>
+    <div class="stat-card" style="flex:1;min-width:130px;">
+      <div class="stat-label">Total Tokens</div>
+      <div class="stat-value" id="pv-total-tokens">0</div>
+      <div class="stat-sub">Active holdings</div>
+    </div>
+  </div>
+
+  <!-- Holdings -->
+  <div class="fs-card">
+    <div class="fs-card-title">🏆 Your Holdings (by % Owned)</div>
+    <div class="fs-card-body" id="pv-holdings" style="padding-top:6px;padding-bottom:6px;">
+      <div style="font-size:12px;color:#ccc;text-align:center;padding:12px 0;">Shop locally to build your portfolio 🌸</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="ptab-btn-market" onclick="switchPortfolioTab('market',this)">🪙 Token Market</button>
+    <button class="tab-btn" id="ptab-btn-trends" onclick="switchPortfolioTab('trends',this)">📈 Trends</button>
+    <button class="tab-btn" id="ptab-btn-ledger" onclick="switchPortfolioTab('ledger',this)">🧾 Activity</button>
+  </div>
+
+  <div id="ptab-market" class="tab-panel active">
+    <div class="fs-card">
+      <div class="fs-card-title">🛒 Your Equity Mints — List for Sale</div>
+      <div class="fs-card-body" id="pv-sell-orders">
+        <div style="font-size:12px;color:#ccc;text-align:center;padding:12px 0;">No tokens to list yet. Shop locally to earn! 🌸</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="ptab-trends" class="tab-panel">
+    <div class="fs-card">
+      <div class="fs-card-title">📈 Market Trends</div>
+      <div class="fs-card-body" id="pv-trends"></div>
+    </div>
+  </div>
+
+  <div id="ptab-ledger" class="tab-panel">
+    <div class="fs-card">
+      <div class="fs-card-title">🧾 Activity Ledger</div>
+      <div class="fs-card-body" id="pv-ledger">
+        <div style="font-size:12px;color:#ccc;text-align:center;padding:12px 0;">No transactions yet. Make your first purchase! 🛍️</div>
+      </div>
+    </div>
+  </div>
+  <div style="height:50px;"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 4 — MERCHANT SUITE
+══════════════════════════════════════════════════ -->
+<div id="section-merchant" class="fs-page">
+  <div class="fs-nav">
+    <div class="fs-logo">Own<span>Local</span> · Merchant Suite 🏪</div>
+    <div class="fs-nav-right">
+      <span id="ms-shop-pill" class="location-pill"></span>
+      <button class="logout-btn" onclick="handleLogout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Locality Analytics -->
+  <div class="fs-card">
+    <div class="fs-card-title">📍 Locality Analytics</div>
+    <div class="fs-card-body">
+      <div class="stat-card">
+        <div class="stat-label">Rank in Neighbourhood</div>
+        <div class="stat-value" id="ms-rank">#3 in Sector V</div>
+        <div class="stat-sub">Based on loyalty score · Top 10% of merchants</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div class="stat-card" style="flex:1;min-width:100px;text-align:center;margin-bottom:0;">
+          <div class="stat-label">Monthly Visitors</div>
+          <div class="stat-value" id="ms-visitors">—</div>
+        </div>
+        <div class="stat-card" style="flex:1;min-width:100px;text-align:center;margin-bottom:0;">
+          <div class="stat-label">Avg Spend</div>
+          <div class="stat-value" id="ms-avg-spend">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stakeholder Breakdown -->
+  <div class="fs-card">
+    <div class="fs-card-title">👥 Stakeholder Breakdown</div>
+    <div class="fs-card-body">
+      <div class="merch-stat-row">
+        <div class="merch-stat-box" style="background:linear-gradient(135deg,#ffe08a,#ffc107);">
+          <div class="merch-stat-num" id="ms-gold">—</div>
+          <div class="merch-stat-lbl" style="color:#5c3a00;">🥇 Gold</div>
+        </div>
+        <div class="merch-stat-box">
+          <div class="merch-stat-num" id="ms-silver">—</div>
+          <div class="merch-stat-lbl">🥈 Silver</div>
+        </div>
+        <div class="merch-stat-box" style="background:linear-gradient(135deg,#ffd6b0,#f5a86a);">
+          <div class="merch-stat-num" id="ms-bronze">—</div>
+          <div class="merch-stat-lbl" style="color:#7a3800;">🥉 Bronze</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Equity Pool Tracker -->
+  <div class="fs-card">
+    <div class="fs-card-title">💰 Equity Pool Tracker</div>
+    <div class="fs-card-body">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="font-size:11px;font-weight:700;color:var(--pink-dark);">Community Equity Distributed</span>
+        <span style="font-size:13px;font-weight:800;color:var(--berry);" id="ms-pool-pct">—</span>
+      </div>
+      <div style="background:var(--pink-pale);border-radius:20px;height:10px;overflow:hidden;margin-bottom:6px;">
+        <div id="ms-pool-bar" style="background:linear-gradient(90deg,var(--pink),var(--pink-dark));height:100%;border-radius:20px;width:0%;transition:width 0.8s var(--ease-smooth);"></div>
+      </div>
+      <div style="font-size:10px;color:#aaa;" id="ms-pool-sub">Calculating…</div>
+    </div>
+  </div>
+
+  <!-- Top 5 Stakeholders -->
+  <div class="fs-card">
+    <div class="fs-card-title">🏅 Top 5 Stakeholders</div>
+    <div class="fs-card-body" style="padding:0 18px 14px;overflow-x:auto;">
+      <table class="stake-table">
+        <thead>
+          <tr><th>#</th><th>Stakeholder</th><th>Tier</th><th>Equity %</th><th>Tokens</th></tr>
+        </thead>
+        <tbody id="ms-stake-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Offline Verifier -->
+  <div class="offline-verifier-card">
+    <div class="fs-card-title" style="padding:14px 18px 10px;font-size:13px;font-weight:800;color:var(--berry);border-bottom:1px solid #fff0f3;">
+      📲 Verify Offline Purchase
+    </div>
+    <div class="fs-card-body" style="padding:16px 18px;">
+      <p style="font-size:11px;color:#aaa;margin-bottom:14px;line-height:1.55;">
+        Customer shopped in-store? Manually log their bill to push equity tokens directly to their wallet.
+      </p>
+      <label style="display:block;font-size:10px;font-weight:800;color:var(--berry);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px;">Customer Phone Number</label>
+      <input type="tel" id="offline-phone" class="offline-input" placeholder="e.g. 9876543210" maxlength="10" inputmode="numeric">
+      <label style="display:block;font-size:10px;font-weight:800;color:var(--berry);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px;">Total Bill Amount (₹)</label>
+      <input type="number" id="offline-amount" class="offline-input" placeholder="e.g. 850" min="1">
+      <button id="offline-mint-btn" class="confirm-mint-btn" onclick="confirmOfflineMint()">
+        <span id="offline-btn-text">Confirm &amp; Mint Equity ✨</span>
+        <span class="mini-spinner" id="offline-spinner"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Stakeholder Feedback -->
+  <div class="fs-card">
+    <div class="fs-card-title">💬 Stakeholder Feedback</div>
+    <div class="fs-card-body" id="ms-reviews"></div>
+  </div>
+  <div style="height:50px;"></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════ -->
+<script>
+// ─────────────────────────────────────────────────
+// API CONFIG — relative paths, no hardcoded localhost
+// ─────────────────────────────────────────────────
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000'   // local dev
+  : '';                        // same-origin in production
+
+async function apiFetch(path, opts = {}) {
+  try {
+    const r = await fetch(API_BASE + path, {
+      headers: { 'Content-Type': 'application/json' },
+      ...opts
+    });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({ detail: 'Server error ' + r.status }));
+      return { error: err.detail || 'Server error' };
+    }
+    return await r.json();
+  } catch (e) {
+    return { error: 'Cannot reach backend. Is Flask running?' };
+  }
+}
+
+// ─────────────────────────────────────────────────
+// LOCATION DATABASE
+// ─────────────────────────────────────────────────
+const LOCATION_DATABASE = {
+"700109":{label:"Belgharia / North Kolkata",bbox:"88.3600,22.6700,88.4000,22.7100",hotspots:[{label:"Belgharia",top:"38%",left:"40%"},{label:"North Hub",top:"55%",left:"52%"}],shops:[
+  {id:101,name:"Tara Sweets",     emoji:"🍬",category:"Sweets & Snacks",rating:4.6,status:"Open",closingTime:"9pm", footfall:210,avgSpending:130, baseEquityPct:1.8},
+  {id:102,name:"North Hub Cafe",  emoji:"☕",category:"Café & Chai",    rating:4.4,status:"Open",closingTime:"10pm",footfall:175,avgSpending:95,  baseEquityPct:2.1},
+  {id:103,name:"Belgharia Books", emoji:"📚",category:"Bookstore",      rating:4.7,status:"Open",closingTime:"8pm", footfall:90, avgSpending:380, baseEquityPct:1.2},
+  {id:104,name:"Fashion Point",   emoji:"👗",category:"Fashion",        rating:4.2,status:"Open",closingTime:"9pm", footfall:260,avgSpending:650, baseEquityPct:0.9},
+  {id:105,name:"The Snack Shack", emoji:"🥪",category:"Sweets & Snacks",rating:3.9,status:"Open",closingTime:"8pm", footfall:310,avgSpending:75,  baseEquityPct:0.6},
+  {id:106,name:"Green Grocers",   emoji:"🥦",category:"Grocery",        rating:4.3,status:"Open",closingTime:"7pm", footfall:195,avgSpending:240, baseEquityPct:1.5},
+  {id:107,name:"Tech Park",       emoji:"💻",category:"Electronics",    rating:4.5,status:"Open",closingTime:"9pm", footfall:140,avgSpending:890, baseEquityPct:2.4},
+  {id:108,name:"Heritage Sarees", emoji:"🪡",category:"Fashion",        rating:4.8,status:"Open",closingTime:"8pm", footfall:120,avgSpending:1200,baseEquityPct:3.1}]},
+"700009":{label:"Sealdah / Central",bbox:"88.3600,22.5600,88.3900,22.5850",hotspots:[{label:"Sealdah",top:"42%",left:"45%"},{label:"Metro Hub",top:"58%",left:"38%"}],shops:[
+  {id:201,name:"Station Brew",    emoji:"☕",category:"Café & Chai",  rating:4.5,status:"Open",closingTime:"10pm",footfall:420,avgSpending:85,  baseEquityPct:2.8},
+  {id:202,name:"City Stationery", emoji:"✏️",category:"Stationery",  rating:4.1,status:"Open",closingTime:"8pm", footfall:180,avgSpending:200, baseEquityPct:1.0},
+  {id:203,name:"Sealdah Silks",   emoji:"🪡",category:"Fashion",      rating:4.7,status:"Open",closingTime:"9pm", footfall:135,avgSpending:950, baseEquityPct:2.3},
+  {id:204,name:"The Big Meal",    emoji:"🍛",category:"Restaurant",   rating:4.4,status:"Open",closingTime:"11pm",footfall:380,avgSpending:320, baseEquityPct:1.7},
+  {id:205,name:"Trackside Tools", emoji:"🔧",category:"Hardware",     rating:3.8,status:"Open",closingTime:"7pm", footfall:95, avgSpending:450, baseEquityPct:0.7},
+  {id:206,name:"Junction Jewelry",emoji:"💍",category:"Jewelry",      rating:4.6,status:"Open",closingTime:"9pm", footfall:110,avgSpending:2200,baseEquityPct:3.5},
+  {id:207,name:"Central Pharmacy",emoji:"💊",category:"Pharmacy",     rating:4.9,status:"Open",closingTime:"11pm",footfall:290,avgSpending:310, baseEquityPct:2.0},
+  {id:208,name:"Metro Mart",      emoji:"🛒",category:"Grocery",      rating:4.2,status:"Open",closingTime:"9pm", footfall:480,avgSpending:560, baseEquityPct:1.3}]},
+"700001":{label:"Howrah / Bridge Area",bbox:"88.3150,22.5600,88.3550,22.5900",hotspots:[{label:"Howrah Bridge",top:"35%",left:"42%"},{label:"Ferry Ghat",top:"55%",left:"55%"}],shops:[
+  {id:301,name:"Riverview Cafe",      emoji:"☕",category:"Café & Chai", rating:4.6,status:"Open",closingTime:"10pm",footfall:220,avgSpending:140, baseEquityPct:2.2},
+  {id:302,name:"Howrah Handlooms",    emoji:"🪡",category:"Fashion",     rating:4.8,status:"Open",closingTime:"8pm", footfall:105,avgSpending:870, baseEquityPct:3.0},
+  {id:303,name:"Bridge Bakers",       emoji:"🥐",category:"Bakery",      rating:4.5,status:"Open",closingTime:"9pm", footfall:195,avgSpending:180, baseEquityPct:1.9},
+  {id:304,name:"The Grand Hotel Shop",emoji:"🏨",category:"Gift Shop",   rating:4.3,status:"Open",closingTime:"10pm",footfall:160,avgSpending:1100,baseEquityPct:2.6},
+  {id:305,name:"Ferry Gifts",         emoji:"🎁",category:"Gift Shop",   rating:4.1,status:"Open",closingTime:"8pm", footfall:130,avgSpending:290, baseEquityPct:1.1},
+  {id:306,name:"Old Town Antiques",   emoji:"🏺",category:"Art & Crafts",rating:4.7,status:"Open",closingTime:"7pm", footfall:75, avgSpending:1800,baseEquityPct:3.8},
+  {id:307,name:"Portside Prints",     emoji:"🖨️",category:"Stationery", rating:4.0,status:"Open",closingTime:"8pm", footfall:115,avgSpending:350, baseEquityPct:0.8},
+  {id:308,name:"Metal Works",         emoji:"⚙️",category:"Hardware",   rating:3.9,status:"Open",closingTime:"6pm", footfall:88, avgSpending:620, baseEquityPct:0.5}]},
+"700019":{label:"Gariahat / South Kolkata",bbox:"88.3550,22.5050,88.3750,22.5250",hotspots:[{label:"Gariahat",top:"45%",left:"42%"},{label:"Ballygunge",top:"35%",left:"55%"},{label:"South City",top:"62%",left:"48%"}],shops:[
+  {id:401,name:"Inika's Boutique",       emoji:"👗",category:"Fashion",       rating:4.8,status:"Open",closingTime:"9pm", footfall:182,avgSpending:850, baseEquityPct:2.4},
+  {id:402,name:"Gariahat Grill",         emoji:"🍛",category:"Restaurant",    rating:4.5,status:"Open",closingTime:"11pm",footfall:310,avgSpending:420, baseEquityPct:1.8},
+  {id:403,name:"Silk Route",             emoji:"🪡",category:"Fashion",       rating:4.6,status:"Open",closingTime:"9pm", footfall:145,avgSpending:1100,baseEquityPct:3.2},
+  {id:404,name:"The Terrace Cafe",       emoji:"☕",category:"Café & Chai",  rating:4.7,status:"Open",closingTime:"10pm",footfall:230,avgSpending:210, baseEquityPct:2.1},
+  {id:405,name:"South KOL Stationery",  emoji:"✏️",category:"Stationery",   rating:4.2,status:"Open",closingTime:"8pm", footfall:120,avgSpending:180, baseEquityPct:1.0},
+  {id:406,name:"Bead World",            emoji:"📿",category:"Art & Crafts",  rating:4.4,status:"Open",closingTime:"8pm", footfall:95, avgSpending:290, baseEquityPct:1.4},
+  {id:407,name:"Pavement Prints",       emoji:"🖼️",category:"Art & Crafts", rating:4.3,status:"Open",closingTime:"7pm", footfall:80, avgSpending:450, baseEquityPct:1.1},
+  {id:408,name:"Artisan Avenue",        emoji:"🎨",category:"Art & Crafts",  rating:4.9,status:"Open",closingTime:"9pm", footfall:110,avgSpending:680, baseEquityPct:3.5}]},
+"700032":{label:"Jadavpur / University Area",bbox:"88.3700,22.4950,88.4000,22.5200",hotspots:[{label:"8B Stop",top:"40%",left:"38%"},{label:"University",top:"52%",left:"55%"}],shops:[
+  {id:501,name:"8B Chai",          emoji:"☕",category:"Café & Chai",  rating:4.9,status:"Open",closingTime:"11pm",footfall:520,avgSpending:65,  baseEquityPct:3.8},
+  {id:502,name:"University Books", emoji:"📚",category:"Bookstore",    rating:4.8,status:"Open",closingTime:"9pm", footfall:310,avgSpending:420, baseEquityPct:2.9},
+  {id:503,name:"Rosé Bakery",      emoji:"🥐",category:"Bakery",       rating:4.7,status:"Open",closingTime:"9pm", footfall:240,avgSpending:195, baseEquityPct:3.2},
+  {id:504,name:"Student's Den",    emoji:"🍜",category:"Restaurant",   rating:4.5,status:"Open",closingTime:"10pm",footfall:480,avgSpending:120, baseEquityPct:2.0},
+  {id:505,name:"The Print Shop",   emoji:"🖨️",category:"Stationery",  rating:4.1,status:"Open",closingTime:"8pm", footfall:195,avgSpending:85,  baseEquityPct:1.2},
+  {id:506,name:"Campus Canteen",   emoji:"🍛",category:"Restaurant",   rating:4.3,status:"Open",closingTime:"10pm",footfall:560,avgSpending:90,  baseEquityPct:1.6},
+  {id:507,name:"Jadavpur Journals",emoji:"📰",category:"Stationery",   rating:4.0,status:"Open",closingTime:"7pm", footfall:140,avgSpending:150, baseEquityPct:0.9},
+  {id:508,name:"Tech Hub",         emoji:"💻",category:"Electronics",  rating:4.6,status:"Open",closingTime:"9pm", footfall:175,avgSpending:760, baseEquityPct:2.5}]},
+"700091":{label:"Salt Lake / Sector V IT Hub",bbox:"88.4000,22.5700,88.4350,22.5950",hotspots:[{label:"Sector V",top:"38%",left:"42%"},{label:"City Centre",top:"56%",left:"55%"}],shops:[
+  {id:601,name:"Byte & Brew",      emoji:"☕",category:"Café & Chai",    rating:4.8,status:"Open",closingTime:"11pm",footfall:480,avgSpending:220, baseEquityPct:3.5},
+  {id:602,name:"SectorV Sushi",    emoji:"🍱",category:"Restaurant",     rating:4.7,status:"Open",closingTime:"11pm",footfall:310,avgSpending:850, baseEquityPct:4.2},
+  {id:603,name:"TechGear Store",   emoji:"💻",category:"Electronics",    rating:4.6,status:"Open",closingTime:"9pm", footfall:290,avgSpending:3200,baseEquityPct:5.0},
+  {id:604,name:"The Co-Work Café", emoji:"🖥️",category:"Café & Chai",   rating:4.9,status:"Open",closingTime:"10pm",footfall:420,avgSpending:180, baseEquityPct:4.8},
+  {id:605,name:"Startup Snacks",   emoji:"🥪",category:"Sweets & Snacks",rating:4.3,status:"Open",closingTime:"9pm", footfall:350,avgSpending:120, baseEquityPct:2.1},
+  {id:606,name:"City Centre Books",emoji:"📚",category:"Bookstore",      rating:4.5,status:"Open",closingTime:"9pm", footfall:180,avgSpending:490, baseEquityPct:2.8},
+  {id:607,name:"Pixel & Print",    emoji:"🖨️",category:"Stationery",    rating:4.2,status:"Open",closingTime:"8pm", footfall:195,avgSpending:260, baseEquityPct:1.9},
+  {id:608,name:"IT Hub Pharmacy",  emoji:"💊",category:"Pharmacy",       rating:4.7,status:"Open",closingTime:"11pm",footfall:260,avgSpending:340, baseEquityPct:2.6}]},
+"700016":{label:"Park Street / High-End Dining",bbox:"88.3450,22.5500,88.3700,22.5700",hotspots:[{label:"Park Street",top:"40%",left:"45%"},{label:"Camac St",top:"58%",left:"38%"}],shops:[
+  {id:701,name:"Flurys",             emoji:"🎂",category:"Luxury Dining",rating:4.9,status:"Open",closingTime:"10pm",footfall:520,avgSpending:1800,baseEquityPct:8.5},
+  {id:702,name:"Peter Cat",          emoji:"🍽️",category:"Luxury Dining",rating:4.8,status:"Open",closingTime:"11pm",footfall:410,avgSpending:2400,baseEquityPct:9.2},
+  {id:703,name:"Mocambo",            emoji:"🥩",category:"Luxury Dining",rating:4.9,status:"Open",closingTime:"11pm",footfall:380,avgSpending:2800,baseEquityPct:9.8},
+  {id:704,name:"The Sky Lounge",     emoji:"🍸",category:"Luxury Dining",rating:4.7,status:"Open",closingTime:"12am",footfall:290,avgSpending:3500,baseEquityPct:7.6},
+  {id:705,name:"Cakewalk Patisserie",emoji:"🧁",category:"Bakery",       rating:4.8,status:"Open",closingTime:"10pm",footfall:340,avgSpending:950, baseEquityPct:6.4},
+  {id:706,name:"Oxford Bookstore",   emoji:"📚",category:"Bookstore",    rating:4.9,status:"Open",closingTime:"9pm", footfall:310,avgSpending:780, baseEquityPct:5.9},
+  {id:707,name:"Park St Jewels",     emoji:"💎",category:"Jewelry",      rating:4.7,status:"Open",closingTime:"9pm", footfall:160,avgSpending:8500,baseEquityPct:11.2},
+  {id:708,name:"La Patisserie",      emoji:"🥐",category:"Bakery",       rating:4.6,status:"Open",closingTime:"9pm", footfall:280,avgSpending:1200,baseEquityPct:7.1}]}
+};
+const ALL_SHOPS_FLAT = Object.values(LOCATION_DATABASE).flatMap(l => l.shops);
+
+// ─────────────────────────────────────────────────
+// PRODUCTS
+// ─────────────────────────────────────────────────
+const CATEGORY_PRODUCTS = {
+"Café & Chai":[{emoji:"☕",name:"Signature Brew",price:"₹189",desc:"House blend, hot or cold"},{emoji:"🥐",name:"Croissant",price:"₹99",desc:"Freshly baked daily"},{emoji:"🫙",name:"Bean Jar 250g",price:"₹349",desc:"Take the café home"},{emoji:"🍰",name:"Cake Slice",price:"₹129",desc:"Changes daily"}],
+"Bakery":[{emoji:"🌹",name:"Rose Lychee Cake",price:"₹649",desc:"500g, custom message"},{emoji:"🍪",name:"Cookie Box (12)",price:"₹189",desc:"Baked fresh each morning"},{emoji:"🧁",name:"Signature Cupcake",price:"₹149",desc:"Swiss meringue frosting"},{emoji:"🥐",name:"Butter Croissant",price:"₹99",desc:"Flaky & golden"}],
+"Sweets & Snacks":[{emoji:"🍬",name:"Mishti Box 500g",price:"₹299",desc:"Assorted Bengali sweets"},{emoji:"🍡",name:"Sandesh Pack",price:"₹199",desc:"Classic chhena dessert"},{emoji:"🥜",name:"Namkeen Jar",price:"₹149",desc:"Crispy & spiced"},{emoji:"🍫",name:"Chocolate Bark",price:"₹249",desc:"Dark & salted caramel"}],
+"Grocery":[{emoji:"🥦",name:"Veggie Basket",price:"₹199",desc:"Fresh, local produce"},{emoji:"🛒",name:"Weekly Bundle",price:"₹599",desc:"Save 15% on essentials"},{emoji:"🌾",name:"Organic Rice 2kg",price:"₹179",desc:"Farm to home"},{emoji:"🫙",name:"Pickle Jar",price:"₹129",desc:"House-made, spicy mango"}],
+"Fashion":[{emoji:"👗",name:"Silk Kurti",price:"₹1299",desc:"Hand-block printed"},{emoji:"🪡",name:"Handloom Dupatta",price:"₹699",desc:"Jamdani weave"},{emoji:"👜",name:"Jute Tote",price:"₹349",desc:"Eco-friendly, branded"},{emoji:"💍",name:"Silver Earrings",price:"₹499",desc:"Sterling silver, artisan"}],
+"Bookstore":[{emoji:"📚",name:"Staff Pick Novel",price:"₹399",desc:"This month's favourite"},{emoji:"📓",name:"Journal A5",price:"₹249",desc:"Dotted, 200 pages"},{emoji:"🖊️",name:"Pen Set",price:"₹199",desc:"Smooth writing experience"},{emoji:"📦",name:"Book Bundle x3",price:"₹799",desc:"Curated by category"}],
+"Stationery":[{emoji:"✏️",name:"Pencil Set 12pk",price:"₹149",desc:"Premium graphite"},{emoji:"📋",name:"Notebook Pack",price:"₹299",desc:"Set of 3, ruled"},{emoji:"🖨️",name:"100 Prints",price:"₹199",desc:"A4 glossy / matte"},{emoji:"📦",name:"Study Kit",price:"₹449",desc:"Everything you need"}],
+"Art & Crafts":[{emoji:"🎨",name:"Watercolour Set",price:"₹499",desc:"24 professional pigments"},{emoji:"🖼️",name:"Canvas A3",price:"₹299",desc:"Stretched, ready to paint"},{emoji:"📿",name:"Bead Kit",price:"₹199",desc:"200 beads + wire"},{emoji:"🪆",name:"Craft Bundle",price:"₹649",desc:"Curated for beginners"}],
+"Pharmacy":[{emoji:"💊",name:"Vitamin C 60s",price:"₹349",desc:"1000mg, immunity boost"},{emoji:"🩺",name:"BP Check Kit",price:"₹199",desc:"Walk-in, 5 min results"},{emoji:"🌿",name:"Tulsi Drops",price:"₹129",desc:"Immunity herbal extract"},{emoji:"🧴",name:"Sunscreen SPF50",price:"₹299",desc:"Dermatologist tested"}],
+"Gift Shop":[{emoji:"🎁",name:"Gift Hamper",price:"₹799",desc:"Curated for any occasion"},{emoji:"🕯️",name:"Soy Candle",price:"₹349",desc:"Rose & oud fragrance"},{emoji:"🎀",name:"Ribbon Wrap Set",price:"₹199",desc:"4 premium rolls"},{emoji:"📿",name:"Beaded Keychain",price:"₹99",desc:"Handcrafted, limited"}],
+"Restaurant":[{emoji:"🍛",name:"Thali (veg)",price:"₹199",desc:"8 items, unlimited refill"},{emoji:"🥘",name:"Biryani Box",price:"₹299",desc:"Dum cooked, serves 1"},{emoji:"🍜",name:"Noodle Bowl",price:"₹149",desc:"Spicy, street-style"},{emoji:"🧆",name:"Snack Box",price:"₹99",desc:"4 items, combo deal"}],
+"Electronics":[{emoji:"💻",name:"Laptop Stand",price:"₹699",desc:"Ergonomic, foldable"},{emoji:"🖱️",name:"Wireless Mouse",price:"₹499",desc:"2.4GHz, silent click"},{emoji:"🔌",name:"USB-C Hub 7-in-1",price:"₹1299",desc:"Fast charging supported"},{emoji:"🎧",name:"Earbuds",price:"₹1499",desc:"Active noise cancellation"}],
+"Jewelry":[{emoji:"💍",name:"Silver Ring",price:"₹899",desc:"Sterling silver, 92.5%"},{emoji:"📿",name:"Bead Necklace",price:"₹699",desc:"Handstrung, unique"},{emoji:"✨",name:"Gold Plated Set",price:"₹1299",desc:"Earring + neckpiece"},{emoji:"🎁",name:"Jewelry Box",price:"₹449",desc:"Gift-ready, velvet lined"}],
+"Hardware":[{emoji:"🔧",name:"Tool Kit 28pc",price:"₹599",desc:"Household essentials"},{emoji:"💡",name:"LED Bulb Pack x4",price:"₹299",desc:"9W, 6500K daylight"},{emoji:"🪣",name:"Storage Set",price:"₹399",desc:"3 sizes, stackable"},{emoji:"🔩",name:"Fastener Box",price:"₹149",desc:"Assorted nuts & bolts"}],
+"Luxury Dining":[{emoji:"🍽️",name:"Chef's Table (2)",price:"₹4,999",desc:"7-course tasting menu"},{emoji:"🍾",name:"Wine Pairing Set",price:"₹2,499",desc:"Sommelier curated, 3 pours"},{emoji:"🎂",name:"Celebration Cake",price:"₹1,899",desc:"Custom, 6-inch, serves 4"},{emoji:"🥂",name:"Premium Cocktail",price:"₹899",desc:"Signature craft cocktail"}],
+"default":[{emoji:"🫖",name:"Local Bestseller",price:"₹199",desc:"Most loved product"},{emoji:"🍰",name:"Sweet Treat",price:"₹149",desc:"Made with love"},{emoji:"🧴",name:"Signature Item",price:"₹349",desc:"Store exclusive"},{emoji:"📦",name:"Mystery Bundle",price:"₹499",desc:"Earn 2x tokens today!"}]
+};
+const PRODUCTS = new Proxy({}, {
+  get(_, shopId) {
+    const shop = ALL_SHOPS_FLAT.find(s => s.id === Number(shopId));
+    if (!shop) return CATEGORY_PRODUCTS["default"];
+    return CATEGORY_PRODUCTS[shop.category] || CATEGORY_PRODUCTS["default"];
+  }
+});
+
+// ─────────────────────────────────────────────────
+// APP STATE
+// ─────────────────────────────────────────────────
+const APP = {
+  pincode:          localStorage.getItem("ol_pincode") || "",
+  totalSpend:       parseFloat(localStorage.getItem("ol_spend")) || 0,
+  totalEquity:      parseFloat(localStorage.getItem("ol_equity")) || 0,
+  shopEquityEarned: JSON.parse(localStorage.getItem("ol_shop_equity") || "{}"),
+  activityLedger:   JSON.parse(localStorage.getItem("ol_ledger") || "[]"),
+  shops:            [],
+  authState:        localStorage.getItem("ol_auth") || "guest",
+  merchantName:     ""
+};
+let isUserLoggedIn = APP.authState === "loggedIn";
+
+// ─────────────────────────────────────────────────
+// SECTION NAVIGATION + BACK BUTTON SUPPORT
+// ─────────────────────────────────────────────────
+const sectionHistory = [];
+
+function showSection(id, addToHistory = true) {
+  const prev = document.querySelector('.app-section.active, .fs-page.active');
+  if (prev && prev.id !== id && addToHistory) {
+    sectionHistory.push(prev.id);
+  }
+  document.querySelectorAll(".app-section, .fs-page").forEach(el => el.classList.remove("active"));
+  const target = document.getElementById(id);
+  if (target) target.classList.add("active");
+}
+
+// Back button support: listen to popstate
+window.addEventListener('popstate', () => {
+  if (sectionHistory.length > 0) {
+    const prev = sectionHistory.pop();
+    showSection(prev, false);
+  }
+});
+
+// Push a history entry so back button is interceptable
+function pushNav(id) {
+  history.pushState({ section: id }, '', '#' + id);
+  showSection(id);
+}
+
+// ─────────────────────────────────────────────────
+// BOOT
+// ─────────────────────────────────────────────────
+(function boot() {
+  syncAuthButtons();
+
+  // Restore merchant session
+  const savedMerchant = localStorage.getItem("ol_merchant_name");
+  const merchantLoggedIn = localStorage.getItem("ol_merchant_logged_in");
+  if (savedMerchant && merchantLoggedIn === "true") {
+    APP.merchantName = savedMerchant;
+    showSection("section-merchant");
+    apiFetch('/merchant-profile?shop_name=' + encodeURIComponent(savedMerchant))
+      .then(data => {
+        if (!data.error && !data.detail) populateMerchantDashboard(data);
+        else populateMerchantSuite();
+      });
+    return;
+  }
+
+  if (APP.pincode.length === 6) {
+    showSection("section-landing");
+    restoreLocationUI();
+    loadShops(APP.pincode);
+    startNotificationLoop();
+    updateEquityBar();
+    document.getElementById("equity-bar").classList.add("show");
+    setTimeout(() => showToast("Welcome back! " + APP.pincode + " loaded 🌸"), 800);
+  } else {
+    showSection("section-pincode");
+  }
+})();
+
+// ─────────────────────────────────────────────────
+// SYNC AUTH BUTTONS
+// ─────────────────────────────────────────────────
+function syncAuthButtons() {
+  const btnWaitlist = document.getElementById("btn-join-waitlist");
+  const btnCreate   = document.getElementById("btn-create-account");
+  const btnAccount  = document.getElementById("btn-my-account");
+
+  if (APP.authState === "guest") {
+    btnWaitlist.style.display = "inline-flex";
+    btnCreate.style.display   = "none";
+    btnAccount.style.display  = "none";
+  } else if (APP.authState === "waitlisted") {
+    btnWaitlist.style.display = "none";
+    btnCreate.style.display   = "inline-flex";
+    btnAccount.style.display  = "none";
+  } else if (APP.authState === "loggedIn") {
+    btnWaitlist.style.display = "none";
+    btnCreate.style.display   = "none";
+    btnAccount.style.display  = "inline-flex";
+    isUserLoggedIn = true;
+  }
+}
+
+// ─────────────────────────────────────────────────
+// AUTH FLOW
+// ─────────────────────────────────────────────────
+function handleJoinWaitlist() {
+  APP.authState = "waitlisted";
+  localStorage.setItem("ol_auth", "waitlisted");
+  showToast("Welcome to the inner circle! 💌");
+  syncAuthButtons();
+}
+
+function handleUserSignUp() { openOtpModal(); }
+
+document.getElementById("btn-my-account").addEventListener("click", function () {
+  populatePortfolio();
+  showSection("section-portfolio");
+});
+
+function closePortfolio() {
+  if (sectionHistory.length > 0) {
+    showSection(sectionHistory.pop(), false);
+  } else {
+    showSection("section-landing");
+  }
+}
+
+// ─────────────────────────────────────────────────
+// OTP MODAL
+// ─────────────────────────────────────────────────
+let _simulatedOtp = "";
+
+function openOtpModal() {
+  document.getElementById("otp-phone-input").value = "";
+  document.getElementById("otp-code-input").value  = "";
+  document.getElementById("otp-step-verify").classList.remove("show");
+  _simulatedOtp = "";
+  document.getElementById("otp-overlay").classList.add("open");
+}
+
+function closeOtpModal() {
+  document.getElementById("otp-overlay").classList.remove("open");
+}
+
+function handleOtpOverlayClick(e) {
+  if (e.target === document.getElementById("otp-overlay")) closeOtpModal();
+}
+
+function sendOtp() {
+  const phone = document.getElementById("otp-phone-input").value.trim();
+  if (!/^\d{10}$/.test(phone)) {
+    showToast("Please enter a valid 10-digit phone number 📱");
+    document.getElementById("otp-phone-input").focus();
+    return;
+  }
+  _simulatedOtp = String(Math.floor(1000 + Math.random() * 9000));
+  document.getElementById("otp-sent-label").textContent =
+    "OTP sent to +91 " + phone.slice(0,5) + "XXXXX · (Demo: " + _simulatedOtp + ")";
+  document.getElementById("otp-step-verify").classList.add("show");
+  document.getElementById("otp-code-input").focus();
+  showToast("OTP dispatched to +91 " + phone.slice(0,5) + "XXXXX 🔐");
+}
+
+function resendOtp() {
+  const phone = document.getElementById("otp-phone-input").value.trim();
+  if (!phone) return;
+  _simulatedOtp = String(Math.floor(1000 + Math.random() * 9000));
+  document.getElementById("otp-sent-label").textContent =
+    "OTP resent to +91 " + phone.slice(0,5) + "XXXXX · (Demo: " + _simulatedOtp + ")";
+  document.getElementById("otp-code-input").value = "";
+  showToast("New OTP resent! 🔁");
+}
+
+function verifyOtp() {
+  const entered = document.getElementById("otp-code-input").value.trim();
+  if (entered.length !== 4) { showToast("Please enter the 4-digit OTP 🔑"); return; }
+  if (entered !== _simulatedOtp) {
+    showToast("Incorrect OTP. Please try again ❌");
+    document.getElementById("otp-code-input").value = "";
+    document.getElementById("otp-code-input").focus();
+    return;
+  }
+  APP.authState = "loggedIn";
+  localStorage.setItem("ol_auth", "loggedIn");
+  isUserLoggedIn = true;
+  closeOtpModal();
+  syncAuthButtons();
+  setTimeout(() => showToast("Securely Logged In 🔒 Welcome to OwnLocal!"), 250);
+}
+
+// ─────────────────────────────────────────────────
+// PINCODE / UNLOCK
+// ─────────────────────────────────────────────────
+function unlockApp() {
+  const val = document.getElementById("pin-input").value.trim();
+  if (val.length < 6) { showToast("Enter a 6-digit pincode ✨"); return; }
+  APP.pincode = val;
+  localStorage.setItem("ol_pincode", val);
+  const isKnown = !!LOCATION_DATABASE[val];
+  if (!isKnown) setTimeout(() => showToast("Coming soon to your neighborhood! ✨"), 600);
+  showSection("section-landing");
+  restoreLocationUI();
+  document.getElementById("equity-bar").classList.add("show");
+  updateEquityBar();
+  loadShops(val);
+  startNotificationLoop();
+}
+
+function restoreLocationUI() {
+  const loc = LOCATION_DATABASE[APP.pincode];
+  document.getElementById("nav-location").textContent = "📍 " + (loc ? loc.label : APP.pincode);
+  document.getElementById("nav-location-wrap").style.display = "flex";
+  document.getElementById("sidebar-pincode").textContent = APP.pincode;
+}
+
+function changeLocation() {
+  APP.pincode = ""; APP.shops = [];
+  localStorage.removeItem("ol_pincode");
+  document.getElementById("equity-bar").classList.remove("show");
+  document.getElementById("nav-location-wrap").style.display = "none";
+  document.getElementById("pin-input").value = "";
+  hideShops();
+  showSection("section-pincode");
+}
+
+// ─────────────────────────────────────────────────
+// LOAD SHOPS
+// ─────────────────────────────────────────────────
+function loadShops(pincode, cb) {
+  document.getElementById("loading-shops").style.display = "block";
+  document.getElementById("shop-list").innerHTML = "";
+  const loc = LOCATION_DATABASE[pincode];
+  if (!loc) {
+    setTimeout(() => {
+      document.getElementById("loading-shops").style.display = "none";
+      APP.shops = []; renderShops([]); if (cb) cb();
+    }, 600);
+    return;
+  }
+  panMapTo(loc.bbox);
+  document.getElementById("sidebar-title").textContent = "Shops in " + loc.label;
+  setTimeout(() => {
+    APP.shops = loc.shops;
+    document.getElementById("loading-shops").style.display = "none";
+    renderShops(APP.shops); renderHotspots();
+    if (cb) cb();
+  }, 900);
+}
+
+// ─────────────────────────────────────────────────
+// MAP
+// ─────────────────────────────────────────────────
+function panMapTo(bbox) {
+  const iframe = document.getElementById("jmap-img");
+  iframe.style.opacity = "0";
+  setTimeout(() => {
+    const enc = bbox.split(",").map(encodeURIComponent).join("%2C");
+    iframe.src = "https://www.openstreetmap.org/export/embed.html?bbox=" + enc + "&layer=mapnik";
+    iframe.style.opacity = "";
+  }, 350);
+}
+
+function showShops() {
+  document.getElementById("section-landing").style.opacity = "0";
+  document.getElementById("section-landing").style.pointerEvents = "none";
+  document.body.classList.add("map-active");
+  document.getElementById("shop-sidebar").classList.add("visible");
+  document.getElementById("ai-bubble").classList.add("show");
+  const loc = LOCATION_DATABASE[APP.pincode];
+  document.getElementById("sidebar-title").textContent = loc ? "Shops in " + loc.label : "Shops Near You";
+  if (APP.shops.length === 0 && APP.pincode) loadShops(APP.pincode);
+  else renderHotspots();
+}
+
+function hideShops() {
+  document.getElementById("section-landing").style.opacity = "1";
+  document.getElementById("section-landing").style.pointerEvents = "auto";
+  document.body.classList.remove("map-active");
+  document.getElementById("shop-sidebar").classList.remove("visible");
+  document.getElementById("hotspot-layer").innerHTML = "";
+  // Close all open overlays cleanly
+  ["ai-bubble","ai-chat-panel","product-drawer-overlay"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.classList.remove("show","open"); }
+  });
+  // Restore section-landing display if hidden
+  const landing = document.getElementById("section-landing");
+  if (landing) { landing.style.display = ""; landing.style.opacity = "1"; landing.style.pointerEvents = "auto"; }
+}
+
+function renderHotspots() {
+  const layer = document.getElementById("hotspot-layer"); layer.innerHTML = "";
+  const loc = LOCATION_DATABASE[APP.pincode]; if (!loc) return;
+  loc.hotspots.forEach(h => {
+    const dot = document.createElement("div"); dot.className = "map-hotspot";
+    dot.style.top = h.top; dot.style.left = h.left;
+    dot.innerHTML = "🏪<span class='hotspot-label'>" + h.label + "</span>";
+    dot.onclick = () => {
+      const filtered = APP.shops.filter(s => s.name.toLowerCase().includes(h.label.toLowerCase()));
+      renderShops(filtered.length ? filtered : APP.shops);
+      document.getElementById("sidebar-title").textContent = "Shops near " + h.label;
+    };
+    layer.appendChild(dot);
+  });
+}
+
+// ─────────────────────────────────────────────────
+// TIER SYSTEM
+// ─────────────────────────────────────────────────
+const BRONZE_REWARDS = {
+  "Café & Chai":"1 Free Coffee/month","Bakery":"1 Free Pastry/month",
+  "Sweets & Snacks":"1 Free Sweet/month","Grocery":"1 Free Home Delivery/month",
+  "Gift Shop":"1 Free Gift Wrap/month","Bookstore":"1 Free Bookmark/month",
+  "Art & Crafts":"1 Free Craft Kit Sample/month","Pharmacy":"1 Free Blood Test/month",
+  "Luxury Dining":"1 Complimentary Dessert/month","Restaurant":"1 Free Appetiser/month",
+  "Hardware":"1 Free Home Delivery/month","default":"1 Free Item/month"
+};
+function getTierList(shop) {
+  const b = BRONZE_REWARDS[shop ? shop.category : ""] || BRONZE_REWARDS["default"];
+  return [
+    {name:"Bronze",label:"Local",      tokens:500,  cls:"tier-bronze",icon:"🥉",reward:b},
+    {name:"Silver",label:"Partner",    tokens:2000, cls:"tier-silver", icon:"🥈",reward:"5% Lifetime Discount + Voting Rights"},
+    {name:"Gold",  label:"Stakeholder",tokens:10000,cls:"tier-gold",   icon:"🥇",reward:"Legal Revenue-Share Equity"}
+  ];
+}
+function getTier(tokens, shop) { const t = getTierList(shop); if (tokens>=10000) return t[2]; if (tokens>=2000) return t[1]; return t[0]; }
+function getNextTier(tokens) {
+  if (tokens<500)  return {needed:500,  label:"Bronze"};
+  if (tokens<2000) return {needed:2000, label:"Silver"};
+  if (tokens<10000)return {needed:10000,label:"Gold"};
+  return {needed:10000,label:"Gold"};
+}
+function pctToTokens(pct) { return Math.round(pct * 100); }
+function shopTokens(sh) { return pctToTokens((sh.baseEquityPct||0) + (APP.shopEquityEarned[sh.id]||0)); }
+function shopPct(sh) { return ((sh.baseEquityPct||0) + (APP.shopEquityEarned[sh.id]||0)).toFixed(2); }
+
+// ─────────────────────────────────────────────────
+// RENDER SHOPS
+// ─────────────────────────────────────────────────
+function getRecommendedShops(shops) {
+  const scored = shops.map(s => ({id:s.id, score:s.rating*20+(s.footfall/10)+(APP.totalSpend>500?s.avgSpending/20:0)}));
+  scored.sort((a,b) => b.score - a.score);
+  return scored.slice(0,2).map(s => s.id);
+}
+function aiInsight(shop) {
+  const {rating,footfall,avgSpending,category} = shop;
+  if (rating>=4.5&&footfall>200) return "High foot traffic and stellar ratings signal strong growth. 📈";
+  if (rating>=4.5&&footfall<=200) return "Hidden gem! Loyal base with room to grow. 💎";
+  if (rating>=4.0&&footfall>300) return "Popular spot with solid community trust. 🏆";
+  if (rating<4.0&&footfall>300) return "High traffic despite avg ratings — improving could unlock value. ⚡";
+  if (rating<4.0) return "Below-average sentiment. Monitor before investing equity. ⚠️";
+  if (category.includes("Chai")||category.includes("Café")) return "Daily habits = consistent foot traffic & recurring equity. ☕";
+  if (avgSpending>500) return "Higher avg spend per visit = more equity per transaction. 💰";
+  return "Steady local business with consistent neighbourhood demand. 🌱";
+}
+
+function renderShops(shops) {
+  const container = document.getElementById("shop-list"); container.innerHTML = "";
+  if (!shops.length) {
+    container.innerHTML = '<div style="text-align:center;padding:30px 20px;color:#ccc;font-size:13px;">No shops found for this pincode yet 🌱</div>';
+    return;
+  }
+  const rec = getRecommendedShops(shops);
+  shops.forEach((shop, idx) => {
+    const tokens = shopTokens(shop);
+    const tier   = getTier(tokens, shop);
+    const next   = getNextTier(tokens);
+    const fill   = Math.min((tokens / next.needed) * 100, 100).toFixed(1);
+    const isRec  = rec.includes(shop.id);
+    const card   = document.createElement("div");
+    card.className = "bg-white p-4 rounded-2xl mb-4 border border-pink-100 shadow-sm";
+    card.style.animation = `fadeSlideUp 0.4s var(--ease-smooth) ${idx * 0.06}s both`;
+    card.innerHTML = `
+      ${isRec ? '<div class="recommended-badge">⭐ Recommended for you</div>' : ""}
+      <div style="display:flex;gap:14px;align-items:flex-start;">
+        <div class="shop-thumb">${shop.emoji}</div>
+        <div style="flex:1;min-width:0;">
+          <span class="tier-badge ${tier.cls}">${tier.icon} ${tier.name} · ${tier.label}</span>
+          <h4 style="font-weight:800;font-size:15px;margin:2px 0;font-family:'Syne',sans-serif;">${shop.name}</h4>
+          <p style="font-size:11px;color:#aaa;margin-top:1px;">${shop.category} &nbsp;•&nbsp; ${shop.rating} ★</p>
+          <p style="font-size:11px;font-weight:700;color:${shop.status==='Open'?'#4caf50':'#e57373'};margin-top:3px;">${shop.status} · Closes ${shop.closingTime}</p>
+          <div style="margin-top:10px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+              <span style="font-size:10px;font-weight:800;color:var(--pink-dark);" id="stake-${shop.id}">${tokens} tokens</span>
+              <span style="font-size:10px;color:#aaa;">Next: ${next.label} (${next.needed})</span>
+            </div>
+            <div style="background:var(--pink-pale);border-radius:20px;height:7px;overflow:hidden;">
+              <div id="stake-bar-${shop.id}" class="tier-bar-fill" style="width:${fill}%;"></div>
+            </div>
+            <div style="font-size:10px;color:var(--pink);margin-top:5px;font-weight:600;" id="tier-reward-${shop.id}">🎁 ${tier.reward}</div>
+          </div>
+          <div class="ai-insight-badge">🤖 ${aiInsight(shop)}</div>
+          <div style="margin-top:7px;">
+            <button class="shop-online-btn" onclick="openDrawer(${shop.id})">Shop Online ✨</button>
+          </div>
+        </div>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+// ─────────────────────────────────────────────────
+// EQUITY ENGINE
+// ─────────────────────────────────────────────────
+function calculateEquity(spend) { return parseFloat((spend * 0.02).toFixed(2)); }
+
+function updateEquityBar() {
+  document.getElementById("eq-total-spend").textContent  = "₹" + APP.totalSpend.toFixed(0);
+  document.getElementById("eq-total-equity").textContent = "₹" + APP.totalEquity.toFixed(2);
+  const pct = Math.min((APP.totalSpend / 50000) * 100, 100);
+  document.getElementById("eq-progress").style.width = pct + "%";
+  const own = ((APP.totalEquity / 500000) * 100).toFixed(4);
+  document.getElementById("eq-ownership-text").textContent = "Own " + own + "% of your local area";
+}
+
+function applyEquityToShop(shop, equity) {
+  if (!shop) return;
+  const prevTokens = shopTokens(shop);
+  const gainPct = parseFloat((equity * 0.04).toFixed(4));
+  APP.shopEquityEarned[shop.id] = parseFloat(((APP.shopEquityEarned[shop.id]||0) + gainPct).toFixed(4));
+  localStorage.setItem("ol_shop_equity", JSON.stringify(APP.shopEquityEarned));
+  const newTokens = shopTokens(shop);
+  const newTier   = getTier(newTokens, shop);
+  const next      = getNextTier(newTokens);
+  const fill      = Math.min((newTokens / next.needed) * 100, 100).toFixed(1);
+  const el_s = document.getElementById("stake-"+shop.id);
+  const el_b = document.getElementById("stake-bar-"+shop.id);
+  const el_r = document.getElementById("tier-reward-"+shop.id);
+  if (el_s) el_s.textContent = newTokens + " tokens";
+  if (el_b) el_b.style.width = fill + "%";
+  if (el_r) el_r.textContent = "🎁 " + newTier.reward;
+  const prevTier = getTier(prevTokens, shop);
+  if (newTier.name !== prevTier.name) showToast("🎉 Tier Up! You're now " + newTier.icon + " " + newTier.name + " at " + shop.name + "!");
+}
+
+function heartBurst(anchor) {
+  const hearts = ["💖","💗","💕","💓","🌸"];
+  for (let i = 0; i < 5; i++) setTimeout(() => {
+    const el = document.createElement("div"); el.className = "heart-burst";
+    el.textContent = hearts[Math.floor(Math.random()*hearts.length)];
+    const rect = anchor.getBoundingClientRect ? anchor.getBoundingClientRect() : {left:200,top:300};
+    el.style.left = (rect.left + Math.random()*60 - 20) + "px";
+    el.style.top  = (rect.top - 10) + "px";
+    document.body.appendChild(el); setTimeout(() => el.remove(), 1100);
+  }, i * 80);
+}
+
+// ─────────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────────
+function showToast(msg) {
+  const c = document.getElementById("toast-container");
+  const t = document.createElement("div"); t.className = "toast"; t.textContent = msg;
+  c.appendChild(t); setTimeout(() => t.remove(), 4200);
+}
+
+// ─────────────────────────────────────────────────
+// NOTIFICATION LOOP
+// ─────────────────────────────────────────────────
+function startNotificationLoop() {
+  const msgs = [
+    () => { if (!APP.shops.length) return; const s = APP.shops[Math.floor(Math.random()*APP.shops.length)]; showToast("+₹" + (Math.random()*15+3).toFixed(2) + " equity trickled in from " + s.name + " 🌸"); },
+    () => { const ins = ["Gariahat footfall up 12% today 📊","8B Chai rating climbed to 4.9 ⭐","New merchant joined your area 🏪","Salt Lake stakes rising 5% 📈","3 neighbours earned equity today 💖"]; showToast(ins[Math.floor(Math.random()*ins.length)]); }
+  ];
+  let tick = 0;
+  setInterval(() => { msgs[tick % msgs.length](); tick++; }, 8000);
+}
+
+// ─────────────────────────────────────────────────
+// AI CHAT BUBBLE
+// ─────────────────────────────────────────────────
+function toggleAIChat() {
+  document.getElementById("ai-chat-panel").classList.toggle("open");
+  if (APP.shops.length > 0) {
+    const top = APP.shops.reduce((a, b) => shopTokens(a) > shopTokens(b) ? a : b);
+    document.getElementById("ai-chat-msg").textContent =
+      "Based on your " + shopTokens(top) + " tokens in " + top.name + ", visit nearby shops to earn 2x tokens! 💖";
+  }
+}
+
+// ─────────────────────────────────────────────────
+// PRODUCT DRAWER + CART
+// ─────────────────────────────────────────────────
+let activeDrawerShopId = null;
+let cart = [];
+
+function openDrawer(shopId) {
+  activeDrawerShopId = shopId; cart = []; renderCart();
+  const shop     = ALL_SHOPS_FLAT.find(s => s.id === shopId);
+  const products = PRODUCTS[shopId];
+  document.getElementById("drawer-shop-name").textContent = shop ? shop.name : "Online Store";
+  const container = document.getElementById("drawer-products"); container.innerHTML = "";
+  products.forEach((p, idx) => {
+    const div = document.createElement("div"); div.className = "product-card";
+    div.innerHTML = `<div class="product-emoji">${p.emoji}</div><div style="font-size:13px;font-weight:700;line-height:1.3;">${p.name}</div><div style="font-size:11px;color:#bbb;">${p.desc}</div><div style="font-size:14px;font-weight:800;color:var(--pink);">${p.price}</div><button class="product-buy-btn" id="pbtn-${shopId}-${idx}" onclick="addToCart(${shopId},${idx})">Add to Cart</button>`;
+    container.appendChild(div);
+  });
+  document.getElementById("product-drawer-overlay").classList.add("open");
+  openCartBody();
+}
+
+function closeDrawer() {
+  document.getElementById("product-drawer-overlay").classList.remove("open");
+  activeDrawerShopId = null;
+}
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById("product-drawer-overlay")) closeDrawer();
+}
+
+function addToCart(shopId, idx) {
+  const p = PRODUCTS[shopId][idx]; if (!p) return;
+  const priceNum = parseFloat(p.price.replace(/[₹,]/g,"")) || 199;
+  cart.push({shopId, idx, name:p.name, price:p.price, priceNum, emoji:p.emoji});
+  renderCart();
+  const btn = document.getElementById("pbtn-"+shopId+"-"+idx);
+  if (btn) {
+    const orig = btn.textContent;
+    btn.textContent = "Added ✓";
+    btn.style.background = "linear-gradient(135deg,#4caf50,#388e3c)";
+    setTimeout(() => { btn.textContent = orig; btn.style.background = ""; }, 900);
+  }
+  const badge = document.getElementById("cart-count-badge");
+  badge.classList.remove("bump"); void badge.offsetWidth; badge.classList.add("bump");
+  setTimeout(() => badge.classList.remove("bump"), 300);
+  openCartBody();
+}
+
+function removeFromCart(i) { cart.splice(i, 1); renderCart(); }
+
+function renderCart() {
+  const list   = document.getElementById("cart-items-list");
+  const badge  = document.getElementById("cart-count-badge");
+  const footer = document.getElementById("cart-footer");
+  const total  = document.getElementById("cart-total-value");
+  badge.textContent = cart.length;
+  if (!cart.length) {
+    list.innerHTML = '<div style="text-align:center;padding:14px 0 6px;font-size:12px;color:#ccc;">Your cart is empty 🌸</div>';
+    footer.classList.remove("visible"); return;
+  }
+  list.innerHTML = ""; let sum = 0;
+  cart.forEach((item, i) => {
+    sum += item.priceNum;
+    const row = document.createElement("div"); row.className = "cart-item";
+    row.innerHTML = `<span class="cart-item-emoji">${item.emoji}</span><div class="cart-item-info"><div class="cart-item-name">${item.name}</div><div class="cart-item-price">${item.price}</div></div><button class="cart-remove-btn" onclick="removeFromCart(${i})">✕</button>`;
+    list.appendChild(row);
+  });
+  total.textContent = "₹" + sum.toLocaleString("en-IN");
+  footer.classList.add("visible");
+}
+
+function toggleCartBody() {
+  document.getElementById("cart-body").classList.toggle("open");
+  document.getElementById("cart-chevron").classList.toggle("open");
+}
+function openCartBody() {
+  document.getElementById("cart-body").classList.add("open");
+  document.getElementById("cart-chevron").classList.add("open");
+}
+
+function checkoutCart() {
+  if (!cart.length) {
+    const btn = document.getElementById("checkout-btn");
+    btn.classList.add("shake"); setTimeout(() => btn.classList.remove("shake"), 450);
+    showToast("Add something to your cart first! 🛍️"); return;
+  }
+  const shop     = ALL_SHOPS_FLAT.find(s => s.id === activeDrawerShopId);
+  const cartCopy = [...cart];
+  const total    = cartCopy.reduce((s, i) => s + i.priceNum, 0);
+  const equity   = calculateEquity(total);
+  const tokens   = Math.round(equity * 40);
+
+  APP.totalSpend  += total;
+  APP.totalEquity += equity;
+  localStorage.setItem("ol_spend",  APP.totalSpend.toFixed(2));
+  localStorage.setItem("ol_equity", APP.totalEquity.toFixed(2));
+  applyEquityToShop(shop, equity);
+  updateEquityBar();
+
+  const entry = {
+    shopName: shop ? shop.name : "Online Store",
+    emoji:    shop ? shop.emoji : "🛍️",
+    total:    total.toLocaleString("en-IN"),
+    tokens, date: new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})
+  };
+  APP.activityLedger.push(entry);
+  if (APP.activityLedger.length > 50) APP.activityLedger.shift();
+  localStorage.setItem("ol_ledger", JSON.stringify(APP.activityLedger));
+
+  heartBurst(document.getElementById("checkout-btn"));
+  showToast("✅ " + cartCopy.length + " item" + (cartCopy.length>1?"s":"") + " · ₹" + total.toLocaleString("en-IN") + " · +" + tokens + " tokens 🌸");
+  cart = []; renderCart();
+  setTimeout(() => closeDrawer(), 1200);
+}
+
+// ─────────────────────────────────────────────────
+// PORTFOLIO
+// ─────────────────────────────────────────────────
+function populatePortfolio() {
+  const loc = LOCATION_DATABASE[APP.pincode];
+  document.getElementById("pv-location-pill").textContent = "📍 " + (loc ? loc.label : APP.pincode || "—");
+
+  const totalTok = ALL_SHOPS_FLAT.reduce((s, sh) => s + shopTokens(sh), 0);
+  document.getElementById("pv-total-eq").textContent     = "₹" + APP.totalEquity.toFixed(2);
+  document.getElementById("pv-total-tokens").textContent = totalTok.toLocaleString();
+
+  const holdings = ALL_SHOPS_FLAT
+    .map(sh => ({ name:sh.name, emoji:sh.emoji, tokens:shopTokens(sh), pct:parseFloat(shopPct(sh)) }))
+    .sort((a,b) => b.pct - a.pct).slice(0,8);
+
+  const hList = document.getElementById("pv-holdings"); hList.innerHTML = "";
+  const nonZero = holdings.filter(h => h.tokens > 0);
+  if (!nonZero.length) {
+    hList.innerHTML = '<div style="font-size:12px;color:#ccc;text-align:center;padding:12px 0;">Shop locally to build your portfolio 🌸</div>';
+  } else {
+    nonZero.forEach(h => {
+      const fill = Math.min((h.pct / 12) * 100, 100).toFixed(1);
+      const row  = document.createElement("div"); row.className = "holding-row";
+      row.innerHTML = `<span style="font-size:18px;">${h.emoji}</span><span style="font-size:12px;font-weight:700;flex:0 0 140px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${h.name}</span><div class="holding-bar-wrap"><div class="holding-bar-fill" style="width:${fill}%;"></div></div><span style="font-size:11px;font-weight:800;color:var(--pink);white-space:nowrap;">${h.pct.toFixed(2)}%</span>`;
+      hList.appendChild(row);
+    });
+  }
+
+  const sellEl = document.getElementById("pv-sell-orders"); sellEl.innerHTML = "";
+  const sellable = ALL_SHOPS_FLAT.filter(sh => shopTokens(sh) > 0).slice(0,6);
+  if (!sellable.length) {
+    sellEl.innerHTML = '<div style="font-size:12px;color:#ccc;text-align:center;padding:12px 0;">No tokens to list yet. Shop locally to earn! 🌸</div>';
+  } else {
+    sellable.forEach(sh => {
+      const toks  = shopTokens(sh);
+      const price = (toks * 1.2).toFixed(0);
+      const div   = document.createElement("div"); div.className = "sell-order-row";
+      div.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;font-weight:700;">${sh.emoji} ${sh.name}</span><span style="font-size:11px;font-weight:800;color:var(--pink);">${toks} tokens</span></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:7px;"><span style="font-size:10px;color:#aaa;">List at ₹${price} (est.)</span><button class="pill-action-btn" onclick="listTokens('${sh.name}',${toks},${price})">List for Sale</button></div>`;
+      sellEl.appendChild(div);
+    });
+  }
+
+  const trends = [
+    {area:"Salt Lake stakes",   change:"+5%", up:true},
+    {area:"Gariahat area",      change:"+12%",up:true},
+    {area:"8B Chai tokens",     change:"+8%", up:true},
+    {area:"Park St Jewels",     change:"+31%",up:true},
+    {area:"Trackside Tools",    change:"-4%", up:false},
+    {area:"Belgharia Books",    change:"+6%", up:true},
+    {area:"Heritage Sarees",    change:"+19%",up:true}
+  ];
+  const tEl = document.getElementById("pv-trends"); tEl.innerHTML = "";
+  trends.forEach(t => {
+    const row = document.createElement("div"); row.className = "mkt-trend-row";
+    row.innerHTML = `<span style="font-size:12px;font-weight:600;">${t.area}</span><span class="${t.up?'mkt-up':'mkt-down'}">${t.change} this week</span>`;
+    tEl.appendChild(row);
+  });
+
+  const ledgerEl = document.getElementById("pv-ledger"); ledgerEl.innerHTML = "";
+  if (!APP.activityLedger.length) {
+    ledgerEl.innerHTML = '<div style="font-size:12px;color:#ccc;text-align:center;padding:12px 0;">No transactions yet. Make your first purchase! 🛍️</div>';
+  } else {
+    const recent = [...APP.activityLedger].reverse().slice(0,15);
+    recent.forEach(entry => {
+      const row = document.createElement("div"); row.className = "ledger-row";
+      row.innerHTML = `<span style="font-size:20px;">${entry.emoji}</span><div style="flex:1;"><div style="font-weight:700;font-size:12px;">${entry.shopName}</div><div style="font-size:10px;color:#aaa;">${entry.date}</div></div><div style="text-align:right;"><div style="font-size:12px;font-weight:800;">₹${entry.total}</div><div style="font-size:10px;color:#4caf50;font-weight:700;">+${entry.tokens} tokens</div></div>`;
+      ledgerEl.appendChild(row);
+    });
+  }
+}
+
+function switchPortfolioTab(tab, btn) {
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  document.getElementById("ptab-" + tab).classList.add("active");
+  btn.classList.add("active");
+}
+
+function listTokens(name, tokens, price) {
+  showToast("💸 Listed " + tokens + " tokens from " + name + " at ₹" + price + "! A neighbour will claim it soon. 🌸");
+}
+
+// ─────────────────────────────────────────────────
+// MERCHANT SUITE
+// ─────────────────────────────────────────────────
+function populateMerchantSuite() {
+  const name = APP.merchantName || "Your Shop";
+  const pin  = document.getElementById("pf-pin").value.trim() || APP.pincode;
+  const loc  = LOCATION_DATABASE[pin] || LOCATION_DATABASE[APP.pincode];
+  const area = loc ? loc.label.split("/")[0].trim() : "Your Area";
+
+  document.getElementById("ms-shop-pill").textContent = "🏪 " + name;
+  document.getElementById("ms-rank").textContent = "#3 in " + area + " (based on loyalty)";
+
+  const totalTok = ALL_SHOPS_FLAT.reduce((s, sh) => s + shopTokens(sh), 0);
+  const gold   = Math.max(1,  Math.floor(totalTok / 800));
+  const silver = Math.max(5,  Math.floor(totalTok / 200));
+  const bronze = Math.max(20, Math.floor(totalTok / 50));
+  document.getElementById("ms-gold").textContent   = gold;
+  document.getElementById("ms-silver").textContent = silver;
+  document.getElementById("ms-bronze").textContent = bronze;
+  document.getElementById("ms-visitors").textContent  = (gold*12 + silver*3 + bronze).toLocaleString();
+  document.getElementById("ms-avg-spend").textContent = "₹" + Math.max(180, Math.floor(APP.totalSpend / Math.max(1, gold+silver+bronze)));
+
+  const dist = Math.min(((APP.totalSpend / 200000) * 10), 10).toFixed(1);
+  const barW = Math.min((parseFloat(dist) / 10) * 100, 100).toFixed(1);
+  document.getElementById("ms-pool-pct").textContent = dist + "%";
+  document.getElementById("ms-pool-bar").style.width = barW + "%";
+  document.getElementById("ms-pool-sub").textContent = dist + " of 10% max distributed · " + (10 - parseFloat(dist)).toFixed(1) + "% remaining";
+
+  const stakes = [
+    {name:"Priya K.",tier:"🥇 Gold",  pct:"2.40%",toks:"240"},
+    {name:"Arjun M.",tier:"🥈 Silver",pct:"1.20%",toks:"120"},
+    {name:"Riya S.", tier:"🥉 Bronze",pct:"0.85%",toks:"85"},
+    {name:"Dev P.",  tier:"🥉 Bronze",pct:"0.60%",toks:"60"},
+    {name:"Anika R.",tier:"🥉 Bronze",pct:"0.45%",toks:"45"}
+  ];
+  const tbody = document.getElementById("ms-stake-table"); tbody.innerHTML = "";
+  stakes.forEach((s, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td style="color:#aaa;font-size:11px;">#${i+1}</td><td>${s.name}</td><td>${s.tier}</td><td style="color:var(--pink);">${s.pct}</td><td>${s.toks}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  const reviews = [
+    {author:"Priya K. 🥇 Gold",  text:"This shop is part of my weekly routine. The equity model makes me feel like I actually own a part of it!"},
+    {author:"Arjun M. 🥈 Silver",text:"Exceptional service. I vote in every monthly poll — love the voting rights as a Silver member."},
+    {author:"Riya S. 🥉 Bronze", text:"Great products, smooth delivery. Hoping to hit Silver soon for the discount perks!"}
+  ];
+  const revEl = document.getElementById("ms-reviews"); revEl.innerHTML = "";
+  reviews.forEach(r => {
+    const div = document.createElement("div"); div.className = "review-card";
+    div.innerHTML = `<div class="review-author">${r.author}</div><div class="review-text">${r.text}</div>`;
+    revEl.appendChild(div);
+  });
+}
+
+// ─────────────────────────────────────────────────
+// OFFLINE TRANSACTION VERIFIER
+// ─────────────────────────────────────────────────
+function confirmOfflineMint() {
+  const phone  = document.getElementById("offline-phone").value.trim();
+  const amount = parseFloat(document.getElementById("offline-amount").value.trim());
+
+  if (!/^\d{10}$/.test(phone)) {
+    showToast("Please enter a valid 10-digit customer phone number 📱");
+    document.getElementById("offline-phone").focus(); return;
+  }
+  if (!amount || amount <= 0) {
+    showToast("Please enter a valid bill amount ₹");
+    document.getElementById("offline-amount").focus(); return;
+  }
+
+  const btn     = document.getElementById("offline-mint-btn");
+  const spinner = document.getElementById("offline-spinner");
+  const label   = document.getElementById("offline-btn-text");
+
+  btn.disabled = true; spinner.classList.add("show"); label.textContent = "Syncing Ledger…";
+
+  setTimeout(() => {
+    btn.disabled = false; spinner.classList.remove("show"); label.textContent = "Confirm & Mint Equity ✨";
+    const equity = calculateEquity(amount);
+    const tokens = Math.round(equity * 40);
+    APP.totalSpend  += amount; APP.totalEquity += equity;
+    localStorage.setItem("ol_spend",  APP.totalSpend.toFixed(2));
+    localStorage.setItem("ol_equity", APP.totalEquity.toFixed(2));
+    const entry = {
+      shopName: APP.merchantName || "Your Shop", emoji: "🏪",
+      total: amount.toLocaleString("en-IN"), tokens,
+      date: new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})
+    };
+    APP.activityLedger.push(entry);
+    if (APP.activityLedger.length > 50) APP.activityLedger.shift();
+    localStorage.setItem("ol_ledger", JSON.stringify(APP.activityLedger));
+    updateEquityBar();
+    document.getElementById("offline-phone").value  = "";
+    document.getElementById("offline-amount").value = "";
+    showToast("Success: Equity Pushed to User! ✨ +" + tokens + " tokens for +91 " + phone.slice(0,5) + "XXXXX");
+  }, 1000);
+}
+
+// ─────────────────────────────────────────────────
+// PARTNER FORM & GSTIN
+// ─────────────────────────────────────────────────
+function openPartnerForm()  { document.getElementById("partner-overlay").classList.add("open"); }
+function closePartnerForm() { document.getElementById("partner-overlay").classList.remove("open"); }
+function handlePartnerOverlayClick(e) { if (e.target === document.getElementById("partner-overlay")) closePartnerForm(); }
+
+async function submitPartnerForm() {
+  const name     = document.getElementById("pf-name").value.trim();
+  const pin      = document.getElementById("pf-pin").value.trim();
+  const gstin    = document.getElementById("pf-gstin").value.trim().toUpperCase();
+  const password = document.getElementById("pf-password").value.trim();
+
+  if (!name)               { showToast("Please enter your shop name ✨"); return; }
+  if (pin.length !== 6)    { showToast("Please enter a valid 6-digit pincode ✨"); return; }
+  if (gstin.length !== 15) { showToast("GSTIN must be exactly 15 characters ✨"); return; }
+  if (!password)           { showToast("Please create a password ✨"); return; }
+
+  const category = document.getElementById("pf-category").value;
+  const email    = document.getElementById("pf-email").value.trim();
+  const footfall = parseInt(document.getElementById("pf-footfall").value) || 0;
+
+  closePartnerForm();
+  const spinner = document.getElementById("gstin-spinner");
+  spinner.classList.add("show");
+
+  const data = await apiFetch('/signup', {
+    method: 'POST',
+    body: JSON.stringify({ shop_name: name, password, category, pincode: pin, gstin, email, monthly_footfall: footfall })
+  });
+
+  setTimeout(() => {
+    spinner.classList.remove("show");
+    if (data.error || data.detail) {
+      showToast("❌ " + (data.error || data.detail));
+      openPartnerForm(); return;
+    }
+    localStorage.setItem("ol_merchant_name", name);
+    localStorage.setItem("ol_merchant_logged_in", "true");
+    APP.merchantName = name;
+    hideShops();
+    showSection("section-merchant");
+    populateMerchantSuite();
+    showToast("✅ Registered & Logged in! Welcome, " + name + " 🏪");
+  }, 2000);
+}
+
+// ─────────────────────────────────────────────────
+// MERCHANT LOGIN MODAL
+// ─────────────────────────────────────────────────
+function openLoginModal() {
+  document.getElementById("ml-shopname").value = "";
+  document.getElementById("ml-password").value = "";
+  const errBox = document.getElementById("login-error");
+  errBox.style.display = "none"; errBox.textContent = "";
+  document.getElementById("login-overlay").classList.add("open");
+}
+function closeLoginModal() { document.getElementById("login-overlay").classList.remove("open"); }
+function handleLoginOverlayClick(e) { if (e.target === document.getElementById("login-overlay")) closeLoginModal(); }
+
+function populateMerchantDashboard(profile) {
+  const pill = document.getElementById("ms-shop-pill");
+  if (pill) pill.textContent = "🏪 " + profile.shop_name;
+  APP.merchantName = profile.shop_name;
+  populateMerchantSuite();
+}
+
+async function submitMerchantLogin() {
+  const name     = document.getElementById("ml-shopname").value.trim();
+  const password = document.getElementById("ml-password").value.trim();
+  const errBox   = document.getElementById("login-error");
+
+  if (!name || !password) {
+    errBox.textContent = "Please enter both shop name and password.";
+    errBox.style.display = "block"; return;
+  }
+  errBox.style.display = "none";
+
+  const data = await apiFetch('/login', {
+    method: 'POST',
+    body: JSON.stringify({ shop_name: name, password })
+  });
+
+  if (data.error || data.detail) {
+    errBox.textContent = "❌ " + (data.error || data.detail);
+    errBox.style.display = "block"; return;
+  }
+
+  closeLoginModal();
+  localStorage.setItem("ol_merchant_name", name);
+  localStorage.setItem("ol_merchant_logged_in", "true");
+  APP.merchantName = name;
+
+  if (data.profile) {
+    populateMerchantDashboard(data.profile);
+  } else {
+    const profile = await apiFetch('/merchant-profile?shop_name=' + encodeURIComponent(name));
+    if (!profile.error && !profile.detail) populateMerchantDashboard(profile);
+    else populateMerchantSuite();
+  }
+  hideShops();
+  showSection("section-merchant");
+  showToast("✅ Welcome back, " + name + "! 🏪");
+}
+
+// ─────────────────────────────────────────────────
+// LOGOUT
+// ─────────────────────────────────────────────────
+function handleLogout() {
+  APP.authState = "guest"; APP.merchantName = ""; isUserLoggedIn = false;
+  localStorage.removeItem("ol_auth");
+  localStorage.removeItem("ol_merchant_name");
+  localStorage.removeItem("ol_merchant_logged_in");
+  APP.pincode = ""; APP.shops = [];
+  localStorage.removeItem("ol_pincode");
+  document.getElementById("equity-bar").classList.remove("show");
+  document.getElementById("nav-location-wrap").style.display = "none";
+  document.getElementById("pin-input").value = "";
+  hideShops();
+  showSection("section-pincode");
+  syncAuthButtons();
+  showToast("👋 You've been logged out. See you soon!");
+}
+</script>
+</body>
+</html>

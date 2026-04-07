@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OwnLocal · Merchant Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:   #faf7f2;
+  --bark:    #2c1a0e;
+  --blush:   #e8735a;
+  --sand:    #d4a574;
+  --mist:    #f0ebe3;
+  --glass:   rgba(255,255,255,0.75);
+  --shadow:  0 8px 32px rgba(44,26,14,0.10);
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--cream);
+  color:var(--bark);
+  min-height:100vh;
+}
+h1,h2,h3,.logo{ font-family:'Fraunces',serif; }
+
+/* ── NAV ── */
+nav{
+  background:white;
+  border-bottom:1.5px solid #ece6dd;
+  padding:18px 40px;
+  display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:50;
+  box-shadow:0 2px 16px rgba(44,26,14,0.06);
+}
+.logo{ font-size:22px; font-weight:700; color:var(--bark); }
+.logo span{ color:var(--blush); }
+.merchant-pill{
+  font-size:12px; font-weight:700;
+  color:var(--blush);
+  background:#fff0ec;
+  padding:5px 16px;
+  border-radius:20px;
+  border:1px solid #f5c8be;
+  letter-spacing:0.3px;
+}
+.logout-btn{
+  background:transparent;
+  color:var(--bark);
+  border:1.5px solid #d8cfc4;
+  border-radius:20px;
+  padding:8px 22px;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+  transition:all 0.2s;
+}
+.logout-btn:hover{ background:var(--bark); color:white; }
+
+/* ── LAYOUT ── */
+.page{ max-width:1000px; margin:0 auto; padding:40px 24px; }
+
+.welcome-bar{
+  background:linear-gradient(135deg,var(--bark),#4a2f1a);
+  color:white;
+  border-radius:24px;
+  padding:36px 40px;
+  margin-bottom:32px;
+  position:relative;
+  overflow:hidden;
+}
+.welcome-bar::before{
+  content:'';
+  position:absolute; inset:0;
+  background:radial-gradient(circle at 80% 50%, rgba(232,115,90,0.3) 0%, transparent 60%);
+}
+.welcome-bar h1{ font-size:clamp(1.8rem,4vw,2.8rem); font-weight:900; margin-bottom:8px; position:relative; }
+.welcome-bar p{ color:rgba(255,255,255,0.65); font-size:14px; position:relative; }
+
+/* ── STAT GRID ── */
+.stat-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:16px;
+  margin-bottom:32px;
+}
+.stat-card{
+  background:white;
+  border:1.5px solid #ece6dd;
+  border-radius:20px;
+  padding:22px 20px;
+  transition:transform 0.2s, box-shadow 0.2s;
+}
+.stat-card:hover{ transform:translateY(-3px); box-shadow:var(--shadow); }
+.stat-label{
+  font-size:11px;
+  font-weight:700;
+  color:var(--sand);
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  margin-bottom:8px;
+}
+.stat-value{
+  font-family:'Fraunces',serif;
+  font-size:2rem;
+  font-weight:900;
+  color:var(--bark);
+  line-height:1;
+}
+.stat-sub{ font-size:11px; color:#bbb; margin-top:6px; }
+
+/* ── INFO CARD ── */
+.info-card{
+  background:white;
+  border:1.5px solid #ece6dd;
+  border-radius:20px;
+  margin-bottom:20px;
+  overflow:hidden;
+}
+.info-card-head{
+  padding:18px 24px;
+  font-weight:700;
+  font-size:14px;
+  border-bottom:1px solid #f4ede5;
+  display:flex; align-items:center; gap:10px;
+}
+.info-card-body{ padding:20px 24px; }
+
+/* ── PROFILE ROW ── */
+.profile-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 0;
+  border-bottom:1px solid #f9f5f0;
+  font-size:13px;
+}
+.profile-row:last-child{ border-bottom:none; }
+.profile-label{ color:#aaa; font-weight:600; }
+.profile-value{ font-weight:700; color:var(--bark); }
+
+/* ── ACTION BUTTONS ── */
+.action-row{ display:flex; gap:12px; flex-wrap:wrap; margin-top:8px; }
+.action-btn{
+  padding:12px 28px;
+  border-radius:14px;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+  transition:all 0.2s;
+  border:none;
+}
+.action-btn.primary{
+  background:linear-gradient(135deg,var(--blush),#c2185b);
+  color:white;
+}
+.action-btn.primary:hover{ opacity:0.88; transform:scale(1.02); }
+.action-btn.secondary{
+  background:var(--mist);
+  color:var(--bark);
+  border:1.5px solid #ddd4c8;
+}
+.action-btn.secondary:hover{ background:#e8e0d6; }
+
+/* ── OFFLINE MINT ── */
+.mint-form{ display:flex; flex-direction:column; gap:12px; }
+.mint-input{
+  width:100%;
+  border:1.5px solid #ece6dd;
+  border-radius:12px;
+  padding:12px 16px;
+  font-size:14px;
+  font-family:'DM Sans',sans-serif;
+  outline:none;
+  background:#faf7f2;
+  color:var(--bark);
+  transition:border-color 0.2s;
+}
+.mint-input:focus{ border-color:var(--blush); }
+.mint-input::placeholder{ color:#ccc; }
+.mint-btn{
+  width:100%;
+  padding:14px;
+  background:linear-gradient(135deg,var(--blush),#c2185b);
+  color:white;
+  border:none;
+  border-radius:14px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:opacity 0.2s;
+}
+.mint-btn:hover{ opacity:0.9; }
+.mint-btn:disabled{ opacity:0.5; cursor:not-allowed; }
+
+/* ── TOAST ── */
+#toast-box{
+  position:fixed; bottom:24px; right:24px;
+  z-index:300; display:flex; flex-direction:column; gap:10px;
+  pointer-events:none;
+}
+.toast{
+  background:white;
+  border-left:4px solid var(--blush);
+  border-radius:14px;
+  padding:14px 20px;
+  font-size:13px;
+  font-weight:600;
+  color:var(--bark);
+  box-shadow:var(--shadow);
+  animation:slideIn 0.4s ease, fadeOut 0.5s ease 3.5s forwards;
+  max-width:300px;
+}
+@keyframes slideIn{ from{ transform:translateX(130%); opacity:0; } to{ transform:translateX(0); opacity:1; } }
+@keyframes fadeOut{ to{ opacity:0; transform:translateX(130%); } }
+
+/* ── LOADING SCREEN ── */
+#loading-screen{
+  position:fixed; inset:0; z-index:200;
+  background:var(--cream);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:16px;
+}
+.spin-ring{
+  width:48px; height:48px;
+  border:4px solid #ece6dd;
+  border-top-color:var(--blush);
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg); } }
+#loading-screen.hidden{ display:none; }
+
+/* ── NOT LOGGED IN SCREEN ── */
+#not-logged-in{
+  position:fixed; inset:0; z-index:150;
+  background:var(--cream);
+  display:none;
+  flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:20px; text-align:center; padding:40px;
+}
+#not-logged-in.show{ display:flex; }
+</style>
+</head>
+<body>
+
+<div id="toast-box"></div>
+
+<!-- Loading spinner shown while we verify session -->
+<div id="loading-screen">
+  <div class="spin-ring"></div>
+  <p style="font-size:14px;color:#aaa;font-weight:600;">Verifying session…</p>
+</div>
+
+<!-- Not logged in guard -->
+<div id="not-logged-in">
+  <div style="font-family:'Fraunces',serif;font-size:3rem;">🔒</div>
+  <h2 style="font-family:'Fraunces',serif;font-size:1.8rem;">Access Denied</h2>
+  <p style="color:#aaa;font-size:14px;max-width:320px;">You need to be logged in as a merchant to view this dashboard.</p>
+  <button onclick="window.location.href='index.html'" style="padding:14px 36px;background:linear-gradient(135deg,#e8735a,#c2185b);color:white;border:none;border-radius:16px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">
+    Go to Login →
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MAIN DASHBOARD (hidden until session verified)
+══════════════════════════════════════════════════ -->
+<div id="dashboard" style="display:none;">
+  <nav>
+    <div class="logo">Own<span>Local</span></div>
+    <span class="merchant-pill" id="nav-shop-pill">🏪 Loading…</span>
+    <button class="logout-btn" onclick="doLogout()">Logout 👋</button>
+  </nav>
+
+  <div class="page">
+
+    <!-- Welcome Bar -->
+    <div class="welcome-bar">
+      <h1 id="welcome-heading">Welcome back! 🏪</h1>
+      <p id="welcome-sub">Here's how your shop is performing on OwnLocal today.</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Monthly Footfall</div>
+        <div class="stat-value" id="stat-footfall">—</div>
+        <div class="stat-sub">Avg monthly visitors</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Category</div>
+        <div class="stat-value" style="font-size:1.3rem;" id="stat-category">—</div>
+        <div class="stat-sub">Your shop type</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Equity Pool</div>
+        <div class="stat-value">2%</div>
+        <div class="stat-sub">Shared with loyal customers</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Member Since</div>
+        <div class="stat-value" style="font-size:1.1rem;" id="stat-joined">—</div>
+        <div class="stat-sub">On OwnLocal</div>
+      </div>
+    </div>
+
+    <!-- Profile Info -->
+    <div class="info-card">
+      <div class="info-card-head">📋 Shop Profile</div>
+      <div class="info-card-body">
+        <div class="profile-row">
+          <span class="profile-label">Shop Name</span>
+          <span class="profile-value" id="pf-shop-name">—</span>
+        </div>
+        <div class="profile-row">
+          <span class="profile-label">Owner Name</span>
+          <span class="profile-value" id="pf-owner-name">—</span>
+        </div>
+        <div class="profile-row">
+          <span class="profile-label">Email</span>
+          <span class="profile-value" id="pf-email">—</span>
+        </div>
+        <div class="profile-row">
+          <span class="profile-label">Pincode</span>
+          <span class="profile-value" id="pf-pincode">—</span>
+        </div>
+        <div class="profile-row">
+          <span class="profile-label">Category</span>
+          <span class="profile-value" id="pf-category">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Offline Token Minting -->
+    <div class="info-card">
+      <div class="info-card-head">⚡ Offline Transaction Verifier — Mint Customer Equity</div>
+      <div class="info-card-body">
+        <p style="font-size:13px;color:#aaa;margin-bottom:16px;">
+          Customer paid in cash or UPI? Enter their phone and bill amount to mint equity tokens directly to their wallet.
+        </p>
+        <div class="mint-form">
+          <input class="mint-input" type="tel" id="offline-phone" placeholder="Customer mobile number (10 digits)" maxlength="10">
+          <input class="mint-input" type="number" id="offline-amount" placeholder="Bill amount (₹)" min="1">
+          <button class="mint-btn" id="mint-btn" onclick="confirmMint()">
+            <span id="mint-label">Confirm & Mint Equity ✨</span>
+            <span id="mint-spinner" style="width:16px;height:16px;border:2.5px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;display:none;"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="info-card">
+      <div class="info-card-head">🚀 Quick Actions</div>
+      <div class="info-card-body">
+        <div class="action-row">
+          <button class="action-btn primary" onclick="window.location.href='index.html'">← Back to App</button>
+          <button class="action-btn secondary" onclick="copyShareLink()">📤 Share My Shop</button>
+          <button class="action-btn secondary" onclick="doLogout()">Logout</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page -->
+</div><!-- /dashboard -->
+
+
+<script>
+const API = "http://localhost:5000";
+
+// ── Toast ──────────────────────────────────────────────────
+function showToast(msg) {
+  const box = document.getElementById("toast-box");
+  const t   = document.createElement("div");
+  t.className = "toast";
+  t.textContent = msg;
+  box.appendChild(t);
+  setTimeout(() => t.remove(), 4200);
+}
+
+// ── Session Guard ──────────────────────────────────────────
+// On page load: check localStorage for merchant session.
+// If no session → show "not logged in" screen.
+// If session → fetch fresh profile from backend → show dashboard.
+window.addEventListener("DOMContentLoaded", function () {
+  const shopName  = localStorage.getItem("ol_merchant_name");
+  const loggedIn  = localStorage.getItem("ol_merchant_logged_in");
+
+  if (!shopName || loggedIn !== "true") {
+    // No session — block access
+    document.getElementById("loading-screen").classList.add("hidden");
+    document.getElementById("not-logged-in").classList.add("show");
+    return;
+  }
+
+  // Session found — fetch live profile from backend
+  fetch(API + "/merchant-profile?shop_name=" + encodeURIComponent(shopName))
+    .then(r => r.json())
+    .then(profile => {
+      if (profile.detail) {
+        // Backend says merchant not found — clear stale session
+        localStorage.removeItem("ol_merchant_name");
+        localStorage.removeItem("ol_merchant_logged_in");
+        document.getElementById("loading-screen").classList.add("hidden");
+        document.getElementById("not-logged-in").classList.add("show");
+        return;
+      }
+      populateDashboard(profile);
+    })
+    .catch(() => {
+      // Backend offline — use localStorage data as fallback
+      populateDashboard({
+        shop_name:        shopName,
+        owner_name:       "—",
+        category:         "—",
+        pincode:          "—",
+        email:            "—",
+        monthly_footfall: 0,
+        joined_at:        "—"
+      });
+      showToast("⚠️ Backend offline — showing cached data");
+    });
+});
+
+function populateDashboard(profile) {
+  // Nav pill
+  document.getElementById("nav-shop-pill").textContent = "🏪 " + profile.shop_name;
+
+  // Welcome bar
+  document.getElementById("welcome-heading").textContent =
+    "Welcome back, " + (profile.owner_name || profile.shop_name) + "! 🏪";
+  document.getElementById("welcome-sub").textContent =
+    profile.shop_name + " · " + (profile.pincode ? "Pincode " + profile.pincode : "");
+
+  // Stats
+  document.getElementById("stat-footfall").textContent =
+    (profile.monthly_footfall || 0).toLocaleString("en-IN");
+  document.getElementById("stat-category").textContent  = profile.category || "—";
+  document.getElementById("stat-joined").textContent    =
+    profile.joined_at ? profile.joined_at.slice(0, 10) : "—";
+
+  // Profile rows
+  document.getElementById("pf-shop-name").textContent  = profile.shop_name || "—";
+  document.getElementById("pf-owner-name").textContent = profile.owner_name || "—";
+  document.getElementById("pf-email").textContent      = profile.email || "—";
+  document.getElementById("pf-pincode").textContent    = profile.pincode || "—";
+  document.getElementById("pf-category").textContent   = profile.category || "—";
+
+  // Show dashboard, hide loading
+  document.getElementById("loading-screen").classList.add("hidden");
+  document.getElementById("dashboard").style.display = "block";
+}
+
+// ── Logout ─────────────────────────────────────────────────
+function doLogout() {
+  // Clear ALL session keys
+  localStorage.removeItem("ol_merchant_name");
+  localStorage.removeItem("ol_merchant_logged_in");
+  showToast("👋 Logged out successfully!");
+  setTimeout(() => { window.location.href = "index.html"; }, 900);
+}
+
+// ── Offline Mint ───────────────────────────────────────────
+function confirmMint() {
+  const phone  = document.getElementById("offline-phone").value.trim();
+  const amount = parseFloat(document.getElementById("offline-amount").value.trim());
+
+  if (!/^\d{10}$/.test(phone)) {
+    showToast("📱 Enter a valid 10-digit mobile number");
+    return;
+  }
+  if (!amount || amount <= 0) {
+    showToast("₹ Enter a valid bill amount");
+    return;
+  }
+
+  const btn     = document.getElementById("mint-btn");
+  const spinner = document.getElementById("mint-spinner");
+  const label   = document.getElementById("mint-label");
+
+  btn.disabled       = true;
+  spinner.style.display = "inline-block";
+  label.textContent  = "Syncing Ledger…";
+
+  // Simulate API call (real implementation would POST to /transaction)
+  setTimeout(() => {
+    btn.disabled       = false;
+    spinner.style.display = "none";
+    label.textContent  = "Confirm & Mint Equity ✨";
+
+    const equity = (amount * 0.02).toFixed(2);
+    const tokens = Math.round(amount / 10);
+
+    document.getElementById("offline-phone").value  = "";
+    document.getElementById("offline-amount").value = "";
+
+    showToast("✅ " + tokens + " tokens minted → +91 " + phone.slice(0,5) + "XXXXX · ₹" + equity + " equity");
+  }, 1200);
+}
+
+// ── Share Link ─────────────────────────────────────────────
+function copyShareLink() {
+  const name = localStorage.getItem("ol_merchant_name") || "our shop";
+  const text = "I'm a merchant on OwnLocal! Shop at " + name + " and earn equity in our business. 🏪 ownlocal.in";
+  navigator.clipboard.writeText(text)
+    .then(() => showToast("📤 Share link copied to clipboard!"))
+    .catch(() => showToast("📤 " + text));
+}
+</script>
+</body>
+</html>
